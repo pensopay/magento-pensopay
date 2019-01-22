@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<config>
+    <!--<tabs>-->
+        <!--<pensopay translate="label" module="pensopay">-->
+            <!--<label>PensoPay</label>-->
+            <!--<sort_order>1000</sort_order>-->
+        <!--</pensopay>-->
+    <!--</tabs>-->
+    <sections>
+        <payment>
+            <groups>
+                <pensopay translate="label" module="pensopay">
+                    <label>PensoPay</label>
+                    <tab>pensopay</tab>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>100</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <version translate="label">
+                            <label>Version</label>
+                            <frontend_type>label</frontend_type>
+                            <frontend_model>pensopay/adminhtml_system_config_form_field_version</frontend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </version>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <testmode translate="label comment">
+                            <label>Enable Testmode</label>
+                            <comment>If disabled, testmode callbacks will not be accepted.</comment>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </testmode>
+                        <agreement_id translate="label">
+                            <label>Agreement Id</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </agreement_id>
+                        <api_key translate="label">
+                            <label>API User Key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </api_key>
+                        <private_key translate="label">
+                            <label>Private Key</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </private_key>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from Applicable Countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>80</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific Countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>90</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </specificcountry>
+                        <text_on_statement translate="label comment">
+                            <label>Text on Statement</label>
+                            <comment><![CDATA[Text that will be placed on cardholder's bank statement (max 22 ASCII characters and <strong>only supported by Clearhaus currently</strong>).<br>Has to start with Default descriptor, as described in your agreement with Clearhaus]]></comment>
+                            <frontend_type>text</frontend_type>
+                            <validate>validate-length maximum-length-22</validate>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </text_on_statement>
+                        <payment_methods translate="label">
+                            <label>Payment Methods</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>110</sort_order>
+                            <source_model>pensopay/system_config_source_paymentMethods</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </payment_methods>
+                        <payment_methods_specified translate="label comment">
+                            <label>Payment Methods</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Type in the cards you wish to accept (comma separated). See the valid payment types here: <![CDATA[<a href="http://tech.quickpay.net/appendixes/payment-methods/" target="_blank" rel="noopener">http://tech.quickpay.net/appendixes/payment-methods/</a>]]></comment>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends><payment_methods>specified</payment_methods></depends>
+                        </payment_methods_specified>
+                        <auto_capture translate="label">
+                            <label>Autocapture</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_capture>
+                        <auto_fee translate="label">
+                            <label>Charge Transaction Fee</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_fee>
+                    </fields>
+                </pensopay>
+            </groups>
+        </payment>
+    </sections>
+</config>
