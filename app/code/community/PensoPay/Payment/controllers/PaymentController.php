@@ -26,6 +26,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_redirect('checkout/cart');
         }
 
+        //@TODO Fix to allow user to decide if using iframe or redirect
         if (true) {
             $this->_getSession()->setPaymentWindowUrl($paymentLink);
             //Redirect to iframe

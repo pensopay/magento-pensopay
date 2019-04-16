@@ -133,7 +133,11 @@ class PensoPay_Payment_Model_Api
 //        $request->setGoogleAnalyticsTrackingId($payment->getConfigData('googleanalyticstracking'));
 //        $request->setGoogleAnalyticsClientId($payment->getConfigData('googleanalyticsclientid'));
         $request->setCustomerEmail($order->getCustomerEmail() ?: '');
-        $request->setFramed(true);
+
+        //@TODO Fix to allow user to decide if using iframe or redirect
+        if (true) {
+            $request->setFramed(true);
+        }
 
         $endpoint = sprintf('payments/%s/link', $paymentId);
         $link = $this->request($endpoint, $request->toArray(), Zend_Http_Client::PUT);
