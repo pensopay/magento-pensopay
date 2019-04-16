@@ -34,6 +34,13 @@
         </routers>
     </frontend>
     <adminhtml>
+        <layout>
+            <updates>
+                <pensopay>
+                    <file>pensopay.xml</file>
+                </pensopay>
+            </updates>
+        </layout>
         <events>
             <controller_action_predispatch>
                 <observers>

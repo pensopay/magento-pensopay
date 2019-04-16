@@ -11,15 +11,13 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
     public function redirectAction()
     {
         $order = $this->_getCheckoutSession()->getLastRealOrder();
+
         /** @var PensoPay_Payment_Model_Api $api */
         $api = Mage::getModel('pensopay/api');
 
         try {
             $payment = $api->createPayment($order);
-
             $paymentLink = $api->createPaymentLink($order, $payment->id);
-
-            $this->_redirectUrl($paymentLink);
         } catch (Exception $e) {
             //Restore quote and redirect to cart
             Mage::helper('pensopay/checkout')->restoreQuote();
@@ -27,8 +25,19 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_getSession()->addError($e->getMessage());
             $this->_redirect('checkout/cart');
         }
+
+        if (true) {
+            $this->_getSession()->setPaymentWindowUrl($paymentLink);
+            //Redirect to iframe
+            $this->_redirect('*/*/iframe');
+        } else {
+            $this->_redirectUrl($paymentLink);
+        }
     }
 
+    /**
+     *
+     */
     public function successAction()
     {
         $order = $this->_getCheckoutSession()->getLastRealOrder();
@@ -120,6 +129,17 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 //        $payment->setAdditionalInformation(Bambora_Online_Model_Checkout_Payment::PSP_REFERENCE, $txnId);
 //        $payment->addTransaction(Mage_Sales_Model_Order_Payment_Transaction::TYPE_AUTH);
 //        $payment->setCcType($transactionResponse->transaction->information->paymentTypes[0]->displayName);
+    }
+
+    /**
+     * Show payment iframe
+     */
+    public function iframeAction()
+    {
+        $url = $this->_getSession()->getPaymentWindowUrl(true);
+        echo sprintf('<iframe src="%s"></iframe>', $url);
+        $this->loadLayout();
+        $this->renderLayout();
     }
 
     /**

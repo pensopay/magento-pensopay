@@ -97,7 +97,7 @@ class PensoPay_Payment_Model_Api
         Mage::dispatchEvent('pensopay_create_payment_before', ['request' => $request]);
 
         //Create payment via API
-        $payment = $this->request('payments?synchronized', $request->toArray());
+        $payment = $this->request('payments', $request->toArray());
 
 //        Mage::log(var_export($payment, true), null, 'request.log');
 
@@ -133,6 +133,7 @@ class PensoPay_Payment_Model_Api
 //        $request->setGoogleAnalyticsTrackingId($payment->getConfigData('googleanalyticstracking'));
 //        $request->setGoogleAnalyticsClientId($payment->getConfigData('googleanalyticsclientid'));
         $request->setCustomerEmail($order->getCustomerEmail() ?: '');
+        $request->setFramed(true);
 
         $endpoint = sprintf('payments/%s/link', $paymentId);
         $link = $this->request($endpoint, $request->toArray(), Zend_Http_Client::PUT);

@@ -1,2 +1,4 @@
-app/code/community/PensoPay/Payment	app/code/community/PensoPay/Payment
-app/etc/modules/PensoPay_Payment.xml	app/etc/modules/PensoPay_Payment.xml
+app/code/community/PensoPay/Payment	                        app/code/community/PensoPay/Payment
+app/design/adminhtml/default/default/layout/pensopay.xml	app/design/adminhtml/default/default/layout/pensopay.xml
+app/design/adminhtml/default/default/template/pensopay      app/design/adminhtml/default/default/template/pensopay
+app/etc/modules/PensoPay_Payment.xml	                    app/etc/modules/PensoPay_Payment.xml

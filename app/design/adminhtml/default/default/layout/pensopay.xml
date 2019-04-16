@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_pensopay_terminal>
+        <reference name="content">
+            <block type="adminhtml/template" name="pensopay_virtualterminal" template="pensopay/virtualterminal.phtml"/>
+        </reference>
+    </adminhtml_pensopay_terminal>
+</layout>
