@@ -10,4 +10,5 @@ class PensoPay_Payment_Model_Config
     const XML_PATH_AGREEMENT_ID = 'payment/pensopay/agreement_id';
     const XML_PATH_AUTO_CAPTURE = 'payment/pensopay/auto_capture';
     const XML_PATH_AUTO_FEE = 'payment/pensopay/auto_fee';
+    const XML_PATH_CHECKOUT_METHOD = 'payment/pensopay/checkout_method';
 }

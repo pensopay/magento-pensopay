@@ -9,7 +9,7 @@ class PensoPay_Payment_Helper_Checkout extends Mage_Core_Helper_Abstract
      */
     public function restoreQuote()
     {
-        $order = $this->_getCheckoutSession()->getLastRealOrder();
+        $order = $this->getCheckoutSession()->getLastRealOrder();
 
         if ($order && $order->getId()) {
             $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
@@ -17,7 +17,7 @@ class PensoPay_Payment_Helper_Checkout extends Mage_Core_Helper_Abstract
                 $quote->setIsActive(1)
                     ->setReservedOrderId(null)
                     ->save();
-                $this->_getCheckoutSession()
+                $this->getCheckoutSession()
                     ->replaceQuote($quote)
                     ->unsLastRealOrderId();
 
@@ -28,13 +28,27 @@ class PensoPay_Payment_Helper_Checkout extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function isCheckoutIframe()
+    {
+        $checkoutMethod = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_CHECKOUT_METHOD);
+        if ($checkoutMethod === PensoPay_Payment_Model_System_Config_Source_CheckoutMethods::METHOD_IFRAME) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Return checkout session
      *
      * @return Mage_Checkout_Model_Session
      */
-    private function _getCheckoutSession()
+    public function getCheckoutSession()
     {
         return Mage::getSingleton('checkout/session');
+    }
+
+    public function getCoreSession()
+    {
+        return Mage::getSingleton('core/session');
     }
 }

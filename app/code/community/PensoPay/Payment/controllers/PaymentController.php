@@ -10,26 +10,27 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
      */
     public function redirectAction()
     {
-        $order = $this->_getCheckoutSession()->getLastRealOrder();
+        /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+        $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
 
         /** @var PensoPay_Payment_Model_Api $api */
         $api = Mage::getModel('pensopay/api');
 
+        $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
         try {
+
             $payment = $api->createPayment($order);
             $paymentLink = $api->createPaymentLink($order, $payment->id);
         } catch (Exception $e) {
             //Restore quote and redirect to cart
-            Mage::helper('pensopay/checkout')->restoreQuote();
+            $pensopayCheckoutHelper->restoreQuote();
 
-            $this->_getSession()->addError($e->getMessage());
+            $pensopayCheckoutHelper->getCoreSession()->addError($e->getMessage());
             $this->_redirect('checkout/cart');
         }
 
-        //@TODO Fix to allow user to decide if using iframe or redirect
-        if (true) {
-            $this->_getSession()->setPaymentWindowUrl($paymentLink);
-            //Redirect to iframe
+        if ($pensopayCheckoutHelper->isCheckoutIframe()) {
+            $pensopayCheckoutHelper->getCoreSession()->setPaymentWindowUrl($paymentLink);
             $this->_redirect('*/*/iframe');
         } else {
             $this->_redirectUrl($paymentLink);
@@ -41,7 +42,10 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
      */
     public function successAction()
     {
-        $order = $this->_getCheckoutSession()->getLastRealOrder();
+        /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+        $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
+
+        $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
 
 //        $payment = Mage::getModel('quickpaypayment/payment');
 
@@ -137,8 +141,6 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
      */
     public function iframeAction()
     {
-        $url = $this->_getSession()->getPaymentWindowUrl(true);
-        echo sprintf('<iframe src="%s"></iframe>', $url);
         $this->loadLayout();
         $this->renderLayout();
     }
@@ -148,8 +150,13 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
      */
     public function cancelAction()
     {
+        /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+        $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
+
         //Read quote id from session and attempt to restore
-        $session = $this->_getCheckoutSession();
+
+        /** @var Mage_Checkout_Model_Session $session */
+        $session = $pensopayCheckoutHelper->getCheckoutSession();
 
         if ($session->getLastRealOrderId()) {
             $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
@@ -161,26 +168,6 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         }
 
         $this->_redirect('checkout/cart');
-    }
-
-    /**
-     * Return checkout session instance
-     *
-     * @return Mage_Checkout_Model_Session
-     */
-    protected function _getCheckoutSession()
-    {
-        return Mage::getSingleton('checkout/session');
-    }
-
-    /**
-     * Return core session instance
-     *
-     * @return Mage_Core_Model_Session
-     */
-    protected function _getSession()
-    {
-        return Mage::getSingleton('core/session');
     }
 
     /**

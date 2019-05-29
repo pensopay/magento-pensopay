@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<layout>
+    <pensopay_payment_iframe>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>pensopay/iframe.phtml</template>
+            </action>
+        </reference>
+    </pensopay_payment_iframe>
+</layout>

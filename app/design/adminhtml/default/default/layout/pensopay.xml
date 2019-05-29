@@ -2,7 +2,15 @@
 <layout>
     <adminhtml_pensopay_terminal>
         <reference name="content">
-            <block type="adminhtml/template" name="pensopay_virtualterminal" template="pensopay/virtualterminal.phtml"/>
+<!--            <block type="adminhtml/template" name="pensopay_virtualterminal" template="pensopay/virtualterminal.phtml"/>-->
+            <block type="pensopay/adminhtml_virtualTerminal" name="pensopay_virtualterminal">
+                <block type="adminhtml/template" name="payment_additional" template="pensopay/virtualterminal-additional.phtml" />
+            </block>
         </reference>
     </adminhtml_pensopay_terminal>
+    <adminhtml_pensopay_edit>
+        <reference name="content">
+            <block type="pensopay/adminhtml_virtualTerminal_edit" name="pensopay_virtualterminal" />
+        </reference>
+    </adminhtml_pensopay_edit>
 </layout>

@@ -2,14 +2,23 @@
 <config>
     <modules>
         <PensoPay_Payment>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </PensoPay_Payment>
     </modules>
     <global>
         <models>
             <pensopay>
                 <class>PensoPay_Payment_Model</class>
+                <resourceModel>pensopay_resource</resourceModel>
             </pensopay>
+            <pensopay_resource>
+                <class>PensoPay_Payment_Model_Resource</class>
+                <entities>
+                    <payments>
+                        <table>pensopay_virtualterminal_payment</table>
+                    </payments>
+                </entities>
+            </pensopay_resource>
         </models>
         <blocks>
             <pensopay>
@@ -21,6 +30,26 @@
                 <class>PensoPay_Payment_Helper</class>
             </pensopay>
         </helpers>
+        <resources>
+            <pensopay_payment_setup>
+                <setup>
+                    <module>PensoPay_Payment</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </pensopay_payment_setup>
+        </resources>
+        <template>
+            <email>
+                <pensopay_virtualterminal_link translate="label">
+                    <label>PensoPay VirtualTerminal Link</label>
+                    <file>pensopay_virtualterminal_link.html</file>
+                    <type>html</type>
+                </pensopay_virtualterminal_link>
+            </email>
+        </template>
     </global>
     <frontend>
         <routers>
@@ -73,6 +102,7 @@
                 <allowspecific>0</allowspecific>
                 <testmode>1</testmode>
                 <model>pensopay/method</model>
+                <checkout_method>redirect</checkout_method>
             </pensopay>
         </payment>
     </default>

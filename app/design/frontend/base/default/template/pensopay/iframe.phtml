@@ -1,0 +1,8 @@
+<?php
+    /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+    $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
+    $url = $pensopayCheckoutHelper->getCoreSession()->getPaymentWindowUrl(true);
+?>
+<iframe src="<?= $url; ?>" height="100%" width="100%">
+
+</iframe>

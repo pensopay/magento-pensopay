@@ -70,6 +70,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </private_key>
+                        <checkout_method translate="label">
+                            <label>Checkout Mode</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>61</sort_order>
+                            <source_model>pensopay/system_config_source_checkoutMethods</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </checkout_method>
                         <title translate="label">
                             <label>Title</label>
                             <frontend_type>text</frontend_type>

@@ -1,0 +1,8 @@
+<div style="display:none">
+    <a id="paymentLink" target="_blank" href="<?php echo $this->getPaymentLink(); ?>"></a>
+</div>
+<?php if ($this->getPaymentLinkAutovisit()): ?>
+    <script type="text/javascript">
+        $('paymentLink').click();
+    </script>
+<?php endif; ?>
