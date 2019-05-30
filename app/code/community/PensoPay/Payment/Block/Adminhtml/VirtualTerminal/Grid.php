@@ -38,13 +38,22 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Grid extends Mage_Adminht
         $this->addColumn('amount', array(
             'header' => $this->__('Amount'),
             'align' => 'center',
-            'index' => 'amount'
+            'index' => 'amount',
+            'width' => '50px',
+            'renderer'  => 'PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Renderer_Grid_Amount',
+        ));
+
+        $this->addColumn('customer_name', array(
+            'header' => $this->__('Customer Name'),
+            'align' => 'center',
+            'width' => '100px',
+            'index' => 'customer_name'
         ));
 
         $this->addColumn('customer_email', array(
             'header' => $this->__('Customer Email'),
             'align' => 'center',
-            'width' => '50px',
+            'width' => '100px',
             'index' => 'customer_email'
         ));
 
@@ -52,29 +61,33 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Grid extends Mage_Adminht
             'header' => $this->__('State'),
             'align' => 'center',
             'width' => '50px',
-            'index' => 'state'
+            'index' => 'state',
+            'renderer'  => 'PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Renderer_Grid_Status',
         ));
 
         $this->addColumn('created_at', array(
             'index' => 'created_at',
             'align' => 'center',
             'type' => 'datetime',
-            'header' => $this->__('Created At')
+            'header' => $this->__('Created At'),
+            'width' => '250px'
         ));
 
         $this->addColumn('updated_at', array(
             'index' => 'updated_at',
             'align' => 'center',
             'type' => 'datetime',
-            'header' => $this->__("Updated At")
+            'header' => $this->__("Updated At"),
+            'width' => '250px'
         ));
 
-        //link - edit
-//        $this->addColumn('type', array(
-//            'index' => 'type',
-//            'align' => 'center',
-//            'header' => $this->__('Type')
-//        ));
+        $this->addColumn('link', array(
+            'index' => 'link',
+            'align' => 'center',
+            'width' => '20px',
+            'header' => $this->__('Payment Link'),
+            'renderer'  => 'PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Renderer_Grid_Link'
+        ));
 
         return parent::_prepareColumns();
     }

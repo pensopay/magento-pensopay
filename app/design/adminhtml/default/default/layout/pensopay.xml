@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <layout>
     <adminhtml_pensopay_terminal>
+        <reference name="head">
+            <action method="addCss">
+                <name>css/pensopay/payment/virtualterminal.css</name>
+            </action>
+        </reference>
         <reference name="content">
 <!--            <block type="adminhtml/template" name="pensopay_virtualterminal" template="pensopay/virtualterminal.phtml"/>-->
             <block type="pensopay/adminhtml_virtualTerminal" name="pensopay_virtualterminal">

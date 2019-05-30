@@ -237,6 +237,19 @@ class PensoPay_Payment_Model_Api
         return json_decode($link)->url;
     }
 
+    public function getPayment($paymentId)
+    {
+        Mage::log('Updating payment state for ' . $paymentId, null, 'pensopay.log');
+
+        $request = new Varien_Object();
+        $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
+
+        $endpoint = sprintf('payments/%s', $paymentId);
+        $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::GET);
+
+        return json_decode($payment);
+    }
+
     /**
      * Perform a API request
      *

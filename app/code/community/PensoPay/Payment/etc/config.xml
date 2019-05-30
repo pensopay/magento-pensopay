@@ -5,6 +5,18 @@
             <version>1.0.1</version>
         </PensoPay_Payment>
     </modules>
+    <crontab>
+        <jobs>
+            <update_virtualterminal_payment_status>
+                <schedule>
+                    <cron_expr>*/10 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>pensopay/observer::updateVirtualterminalPaymentStatus</model>
+                </run>
+            </update_virtualterminal_payment_status>
+        </jobs>
+    </crontab>
     <global>
         <models>
             <pensopay>
