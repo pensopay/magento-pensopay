@@ -27,7 +27,7 @@
                 <class>PensoPay_Payment_Model_Resource</class>
                 <entities>
                     <payments>
-                        <table>pensopay_virtualterminal_payment</table>
+                        <table>pensopay_payment</table>
                     </payments>
                 </entities>
             </pensopay_resource>
@@ -73,6 +73,13 @@
                 </args>
             </pensopay>
         </routers>
+        <layout>
+            <updates>
+                <pensopay>
+                    <file>pensopay.xml</file>
+                </pensopay>
+            </updates>
+        </layout>
     </frontend>
     <adminhtml>
         <layout>
@@ -91,6 +98,14 @@
                     </pensopay_feed_notifications>
                 </observers>
             </controller_action_predispatch>
+            <checkout_submit_all_after>
+                <observers>
+                    <pensopay_payment>
+                        <class>pensopay/observer</class>
+                        <method>checkoutSubmitAllAfter</method>
+                    </pensopay_payment>
+                </observers>
+            </checkout_submit_all_after>
         </events>
     </adminhtml>
     <admin>
@@ -115,6 +130,8 @@
                 <testmode>1</testmode>
                 <model>pensopay/method</model>
                 <checkout_method>redirect</checkout_method>
+                <auto_capture>0</auto_capture>
+                <auto_fee>0</auto_fee>
             </pensopay>
         </payment>
     </default>

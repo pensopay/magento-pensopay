@@ -15,6 +15,7 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Grid extends Mage_Adminht
     {
         /** @var PensoPay_Payment_Model_Resource_Payment_Collection $collection */
         $collection = Mage::getResourceModel('pensopay/payment_collection');
+        $collection->addFieldToFilter('is_virtualterminal', 1);
         $this->setCollection($collection);
         return parent::_prepareCollection();
     }

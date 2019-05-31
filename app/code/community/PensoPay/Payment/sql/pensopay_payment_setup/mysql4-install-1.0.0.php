@@ -17,12 +17,15 @@ $tblPayments = $installer->getConnection()
         'nullable' => false,
         'unsigned' => true
     ), 'Reference ID')
+    ->addColumn('is_virtualterminal', Varien_Db_Ddl_Table::TYPE_BOOLEAN, 11, array('nullable' => false, 'default' => 0), 'Is Payment VirtualTerminal')
     ->addColumn('order_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array('nullable' => false, 'unsigned' => true), 'Order ID')
     ->addColumn('accepted', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'Accepted by provider')
     ->addColumn('currency', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'Currency')
     ->addColumn('state', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'State')
     ->addColumn('link', Varien_Db_Ddl_Table::TYPE_TEXT, 65534, array('nullable' => false), 'Payment Link')
     ->addColumn('amount', Varien_Db_Ddl_Table::TYPE_DECIMAL, 255, array('nullable' => false), 'Amount')
+    ->addColumn('amount_refunded', Varien_Db_Ddl_Table::TYPE_DECIMAL, 255, array('nullable' => false), 'Amount Refunded')
+    ->addColumn('amount_captured', Varien_Db_Ddl_Table::TYPE_DECIMAL, 255, array('nullable' => false), 'Amount Captured')
     ->addColumn('locale_code', Varien_Db_Ddl_Table::TYPE_TEXT, 65534, array('nullable' => false), 'Language')
     ->addColumn('autocapture', Varien_Db_Ddl_Table::TYPE_BOOLEAN, 1, array('nullable' => false), 'Autocapture')
 
@@ -34,6 +37,10 @@ $tblPayments = $installer->getConnection()
 
     ->addColumn('created_at', Varien_Db_Ddl_Table::TYPE_DATETIME, null, array(), 'Created At')
     ->addColumn('updated_at', Varien_Db_Ddl_Table::TYPE_DATETIME, null, array(), 'Updated At')
+    ->addColumn('operations', Varien_Db_Ddl_Table::TYPE_TEXT, 65534, array('nullable' => false), 'Operations')
+    ->addColumn('metadata', Varien_Db_Ddl_Table::TYPE_TEXT, 65534, array('nullable' => false), 'Metadata')
+    ->addColumn('fraud_probability', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'Fraud Probability')
+    ->addColumn('hash', Varien_Db_Ddl_Table::TYPE_TEXT, 65534, array('nullable' => false), 'Payment Hash')
     ->addIndex(
         $installer->getIdxName('pensopay/payments', array('id'), Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE),
         array('id'), array('type' => Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE))

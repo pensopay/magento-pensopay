@@ -114,7 +114,6 @@ class PensoPay_Payment_Model_Api
 
         Mage::dispatchEvent('pensopay_create_payment_before', ['request' => $request]);
 
-        //TODO: save payment?
         //Create payment via API
         $payment = $this->request('payments', $request->toArray());
 
@@ -143,7 +142,6 @@ class PensoPay_Payment_Model_Api
 
         Mage::dispatchEvent('pensopay_update_payment_before', ['request' => $request]);
 
-        //TODO: save payment?
         //Update payment via API
         $endpoint = sprintf('payments/%s', $order->getReferenceId());
         $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::PATCH, [200]);
@@ -158,7 +156,6 @@ class PensoPay_Payment_Model_Api
 
         Mage::dispatchEvent('pensopay_cancel_payment_before', ['request' => $request]);
 
-        //TODO: save payment?
         //Update payment via API
         $endpoint = sprintf('payments/%s/cancel?synchronized', $paymentId);
         $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST, [200, 202]);
@@ -184,9 +181,11 @@ class PensoPay_Payment_Model_Api
 
         if (!$order->getIsVirtualTerminal()) {
             $request->setAmount($order->getTotalDue() * 100);
-            $request->setContinueurl($this->getContinueUrl());
-            $request->setCancelurl($this->getCancelUrl());
-            $request->setCallbackurl($this->getCallbackUrl());
+            if (!$order->getNoRedirects()) {
+                $request->setContinueurl($this->getContinueUrl($order->getStore()));
+                $request->setCancelurl($this->getCancelUrl($order->getStore()));
+                $request->setCallbackurl($this->getCallbackUrl($order->getStore()));
+            }
             $request->setLanguage($this->getLanguageFromLocale(Mage::app()->getLocale()->getLocaleCode()));
             $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE));
             $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE));
@@ -235,6 +234,36 @@ class PensoPay_Payment_Model_Api
         $link = $this->request($endpoint, $request->toArray(), Zend_Http_Client::DELETE, [204]); //No content returned for this
 
         return json_decode($link)->url;
+    }
+
+    public function capture($paymentId, $amount)
+    {
+        $request = new Varien_Object();
+        $request->setId($paymentId);
+        $request->setAmount($amount * 100);
+
+        Mage::dispatchEvent('pensopay_capture_payment_before', ['request' => $request]);
+
+        //Update payment via API
+        $endpoint = sprintf('payments/%s/capture?synchronized', $paymentId);
+        $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST);
+
+        return json_decode($payment);
+    }
+
+    public function refund($paymentId, $amount)
+    {
+        $request = new Varien_Object();
+        $request->setId($paymentId);
+        $request->setAmount($amount * 100);
+
+        Mage::dispatchEvent('pensopay_refund_payment_before', ['request' => $request]);
+
+        //Update payment via API
+        $endpoint = sprintf('payments/%s/refund?synchronized', $paymentId);
+        $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST);
+
+        return json_decode($payment);
     }
 
     public function getPayment($paymentId)
@@ -326,31 +355,31 @@ class PensoPay_Payment_Model_Api
 
     /**
      * Get continue url
-     *
+     * @param Mage_Core_Model_Store $store
      * @return string
      */
-    private function getContinueUrl()
+    private function getContinueUrl($store)
     {
-        return Mage::getUrl('pensopay/payment/success');
+        return $store->getUrl('pensopay/payment/success');
     }
 
     /**
      * Get cancel url
-     *
+     * @param Mage_Core_Model_Store $store
      * @return string
      */
-    private function getCancelUrl()
+    private function getCancelUrl($store)
     {
-        return Mage::getUrl('pensopay/payment/cancel');
+        return $store->getUrl('pensopay/payment/cancel');
     }
 
     /**
      * Get callback url
-     *
+     * @param Mage_Core_Model_Store $store
      * @return string
      */
-    private function getCallbackUrl()
+    private function getCallbackUrl($store)
     {
-        return Mage::getUrl('pensopay/payment/callback');
+        return $store->getUrl('pensopay/payment/callback');
     }
 }

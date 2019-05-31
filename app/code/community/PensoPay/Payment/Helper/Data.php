@@ -47,4 +47,36 @@ class PensoPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
        }
        return $colorCode;
    }
+
+    /**
+     * @param $email
+     * @param $name
+     * @param $amount
+     * @param $currency
+     * @param $link
+     * @throws Exception
+     */
+    public function sendEmail($email, $name, $amount, $currency, $link) {
+        $emailTemplate  = Mage::getModel('core/email_template')->loadDefault('pensopay_virtualterminal_link');
+
+        $vars = [
+            'currency' => $currency,
+            'amount'   => $amount,
+            'link'     => $link
+        ];
+
+        $salesContact = Mage::getStoreConfig('trans_email/ident_sales');
+
+        if (empty($salesContact)) {
+            throw new Exception($this->__('Could not send email. The sales contact is empty.'));
+        }
+
+        $emailTemplate->setSenderEmail($salesContact['email']);
+        $emailTemplate->setSenderName($salesContact['name']);
+        $emailTemplate->setTemplateSubject($this->__('Payment link'));
+
+        if (!$emailTemplate->send($email, $name, $vars)) {
+            throw new Exception('Could not send email.');
+        }
+    }
 }

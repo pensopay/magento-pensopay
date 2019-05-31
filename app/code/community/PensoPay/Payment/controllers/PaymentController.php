@@ -2,8 +2,35 @@
 
 class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Action
 {
-    const FRAUD_PROBABILITY_HIGH = 'high';
-    const FRAUD_PROBABILITY_NONE = 'none';
+    public function emailAction()
+    {
+        /** @var Mage_Core_Controller_Request_Http $request */
+        $request = $this->getRequest();
+
+        $hash = $this->getRequest()->getParam('hash');
+        if (!empty($hash)) {
+            /** @var PensoPay_Payment_Model_Payment $payment */
+            $payment = Mage::getModel('pensopay/payment');
+            $payment->load($hash, 'hash');
+            if ($payment->getId()) {
+                $order = Mage::getModel('sales/order')->loadByIncrementId($payment->getOrderId());
+                if ($order->getId()) {
+                    /** @var Mage_Checkout_Model_Session $checkoutSession */
+                    $checkoutSession = Mage::getSingleton('checkout/session');
+                    $checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+                    $checkoutSession->setLastQuoteId($order->getQuoteId());
+                    $checkoutSession->setLastOrderId($order->getId());
+                    return $this->getResponse()->setRedirect($payment->getLink());
+                }
+            }
+        }
+
+        //Non descriptive messages for these things are best, I believe.
+        Mage::getSingleton('core/session')->addError($this->__('Error with the link.'));
+        return $this->_redirect('/');
+    }
+
+
 
     /**
      * Redirect to gateway
@@ -17,10 +44,28 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         $api = Mage::getModel('pensopay/api');
 
         $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
+        $isCheckoutIframe = $pensopayCheckoutHelper->isCheckoutIframe();
         try {
 
             $payment = $api->createPayment($order);
+
+            /**
+             * Because this is an iframe, we need tell the api to generate a link that after payment is complete
+             * it won't redirect the user (within the iframe) anywhere. our code will handle that.
+             */
+            if ($isCheckoutIframe) {
+                $order->setNoRedirects(true);
+            }
+
             $paymentLink = $api->createPaymentLink($order, $payment->id);
+
+            /** @var PensoPay_Payment_Model_Payment $newPayment */
+            $newPayment = Mage::getModel('pensopay/payment');
+
+            $newPayment->importFromRemotePayment($payment);
+            $newPayment->setLink($paymentLink);
+            $newPayment->setIsVirtualterminal(false);
+            $newPayment->save();
         } catch (Exception $e) {
             //Restore quote and redirect to cart
             $pensopayCheckoutHelper->restoreQuote();
@@ -29,7 +74,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_redirect('checkout/cart');
         }
 
-        if ($pensopayCheckoutHelper->isCheckoutIframe()) {
+        if ($isCheckoutIframe) {
             $pensopayCheckoutHelper->getCoreSession()->setPaymentWindowUrl($paymentLink);
             $this->_redirect('*/*/iframe');
         } else {
@@ -47,33 +92,29 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 
         $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
 
-//        $payment = Mage::getModel('quickpaypayment/payment');
+        /** @var PensoPay_Payment_Model_Method $paymentMethod */
+        $paymentMethod = Mage::getModel('pensopay/method');
 
-//        $quoteID = Mage::getSingleton('checkout/cart')->getQuote()->getId();
+        $quoteID = Mage::getSingleton('checkout/cart')->getQuote()->getId();
 
-//        if ($quoteID) {
-//            $quote = Mage::getModel('sales/quote')->load($quoteID);
-//            $quote->setIsActive(false)->save();
-//        }
+        if ($quoteID) {
+            $quote = Mage::getModel('sales/quote')->load($quoteID);
+            $quote->setIsActive(false)->save();
+        }
 
-        // CREATES INVOICE if payment instantcapture is ON
-//        if ((int)$payment->getConfigData('instantcapture') == 1 && (int)$payment->getConfigData('instantinvoice') == 1) {
-//            if ($order->canInvoice()) {
-//                $invoice = $order->prepareInvoice();
-//                $invoice->register();
-//                $invoice->setEmailSent(true);
-//                $invoice->getOrder()->setCustomerNoteNotify(true);
-//                $invoice->sendEmail(true, '');
-//                Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
-//
-//                $order->addStatusToHistory(Mage_Sales_Model_Order::STATE_COMPLETE);
-//                $order->save();
-//            }
-//        } else {
-//            if (((int)$payment->getConfigData('sendmailorderconfirmationbefore')) == 1) {
-//                $this->sendEmail($order);
-//            }
-//        }
+        if ((int)$paymentMethod->getConfigData('auto_capture') == 1) {
+            if ($order->canInvoice()) {
+                $invoice = $order->prepareInvoice();
+                $invoice->register();
+                $invoice->setEmailSent(true);
+                $invoice->getOrder()->setCustomerNoteNotify(true);
+                $invoice->sendEmail(true, '');
+                Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
+
+                $order->addStatusToHistory(Mage_Sales_Model_Order::STATE_COMPLETE);
+                $order->save();
+            }
+        }
 
         $this->_redirect('checkout/onepage/success');
     }
@@ -118,12 +159,12 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 $metadata = $request->metadata;
                 $fraudSuspected = $metadata->fraud_suspected;
 
-                $fraudProbability = self::FRAUD_PROBABILITY_HIGH;
+                $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_HIGH;
 
                 if ($fraudSuspected) {
-                    $fraudProbability = self::FRAUD_PROBABILITY_HIGH;
+                    $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_HIGH;
                 } else {
-                    $fraudProbability = self::FRAUD_PROBABILITY_NONE;
+                    $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_NONE;
                 }
             }
         }
@@ -143,6 +184,70 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
     {
         $this->loadLayout();
         $this->renderLayout();
+    }
+
+    public function pollPaymentAction()
+    {
+        /** @var Mage_Checkout_Model_Session $checkoutSession */
+        $checkoutSession = Mage::getSingleton('checkout/session');
+
+        /** @var Mage_sales_Model_Order $order */
+        $order = $checkoutSession->getLastRealOrder();
+
+        /** @var PensoPay_Payment_Model_Payment $payment */
+        $payment = Mage::getModel('pensopay/payment');
+
+        $payment->load($order->getIncrementId(), 'order_id');
+        if ($payment->getId()) {
+            try {
+                $payment->updatePaymentRemote();
+
+                if (in_array($payment->getLastType(), [
+                        PensoPay_Payment_Model_Payment::OPERATION_AUTHORIZE,
+                        PensoPay_Payment_Model_Payment::OPERATION_CAPTURE])
+                ) {
+                    if ($payment->getLastCode() == PensoPay_Payment_Model_Payment::STATUS_APPROVED) {
+                        $this->getResponse()->setBody(json_encode(
+                            [
+                                'repeat' => 0,
+                                'error' => 0,
+                                'success' => 1,
+                                'redirect' => Mage::app()->getStore()->getUrl('pensopay/payment/success')
+                            ]
+                        ));
+                    } else {
+                        Mage::getSingleton('checkout/session')->addError($this->__('There was a problem with the payment. Please try again.'));
+                        $this->getResponse()->setBody(json_encode(
+                            [
+                                'repeat' => 0,
+                                'error' => 1,
+                                'success' => 0,
+                                'redirect' => Mage::app()->getStore()->getUrl('pensopay/payment/cancel')
+                            ]
+                        ));
+                    }
+                    return;
+                }
+
+                $this->getResponse()->setBody(json_encode(
+                    [
+                        'repeat' => 1,
+                        'error' => 0,
+                        'success' => 0,
+                        'redirect' => ''
+                    ]
+                ));
+            } catch (Exception $e) {}
+            return;
+        }
+        $this->getResponse()->setBody(json_encode(
+            [
+                'repeat' => 0,
+                'error' => 1,
+                'success' => 0,
+                'redirect' => Mage::app()->getStore()->getUrl('/')
+            ]
+        ));
     }
 
     /**

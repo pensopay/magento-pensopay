@@ -75,38 +75,6 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
         return $order;
     }
 
-    /**
-     * @param $email
-     * @param $name
-     * @param $amount
-     * @param $currency
-     * @param $link
-     * @throws Exception
-     */
-    protected function _sendEmail($email, $name, $amount, $currency, $link) {
-        $emailTemplate  = Mage::getModel('core/email_template')->loadDefault('pensopay_virtualterminal_link');
-
-        $vars = [
-            'currency' => $currency,
-            'amount'   => $amount,
-            'link'     => $link
-        ];
-
-        $salesContact = Mage::getStoreConfig('trans_email/ident_sales');
-
-        if (empty($salesContact)) {
-            throw new Exception($this->__('Could not send email. The sales contact is empty.'));
-        }
-
-        $emailTemplate->setSenderEmail($salesContact['email']);
-        $emailTemplate->setSenderName($salesContact['name']);
-        $emailTemplate->setTemplateSubject($this->__('Payment link'));
-
-        if (!$emailTemplate->send($email, $name, $vars)) {
-            throw new Exception('Could not send email.');
-        }
-    }
-
     private function _updatePaymentLink($sendEmail) {
         /** @var Mage_Core_Controller_Request_Http $request */
         $request = $this->getRequest();
@@ -142,13 +110,15 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
             $this->_getSession()->setPaymentLink($paymentLink);
             $this->_getSession()->addSuccess($paymentLink);
 
-            $paymentModel->setData($postData);
+            $paymentModel->addData($postData);
             $paymentModel->importFromRemotePayment($payment);
             $paymentModel->setLink($paymentLink);
             $paymentModel->save();
 
             if ($sendEmail) {
-                $this->_sendEmail($postData['customer_email'], $postData['customer_name'] ?: '', $paymentModel->getAmount(), $paymentModel->getCurrencyCode(), $paymentLink);
+                /** @var PensoPay_Payment_Helper_Data $helper */
+                $helper = Mage::helper('pensopay');
+                $helper->sendEmail($postData['customer_email'], $postData['customer_name'] ?: '', $paymentModel->getAmount(), $paymentModel->getCurrencyCode(), $paymentLink);
             }
         } catch (Exception $e) {
             $this->_getSession()->addError($e->getMessage());
@@ -188,11 +158,14 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
             $newPayment->setData($postData);
             $newPayment->importFromRemotePayment($payment);
             $newPayment->setLink($paymentLink);
+            $newPayment->setIsVirtualterminal(true);
             $newPayment->setData('id', null);
             $newPayment->save();
 
             if ($sendEmail) {
-                $this->_sendEmail($postData['customer_email'], $postData['customer_name'] ?: '', $newPayment->getAmount(), $newPayment->getCurrencyCode(), $paymentLink);
+                /** @var PensoPay_Payment_Helper_Data $helper */
+                $helper = Mage::helper('pensopay');
+                $helper->sendEmail($postData['customer_email'], $postData['customer_name'] ?: '', $newPayment->getAmount(), $newPayment->getCurrencyCode(), $paymentLink);
             }
         } catch (Exception $e) {
             $this->_getSession()->addError($e->getMessage());

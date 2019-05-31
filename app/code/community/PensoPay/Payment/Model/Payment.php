@@ -20,6 +20,12 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
     const STATUS_GATEWAY_ERROR = 50000;
     const COMMUNICATIONS_ERROR_ACQUIRER = 50300;
 
+    const OPERATION_CAPTURE = 'capture';
+    const OPERATION_AUTHORIZE = 'authorize';
+
+    const FRAUD_PROBABILITY_HIGH = 'high';
+    const FRAUD_PROBABILITY_NONE = 'none';
+
     protected $_lastOperation = array();
 
     const STATUS_CODES =
@@ -57,7 +63,7 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         $lastCode = $this->getLastCode();
 
         $status = '';
-        if ($lastCode == self::STATUS_APPROVED && $this->getLastType() == 'capture') {
+        if ($lastCode == self::STATUS_APPROVED && $this->getLastType() == self::OPERATION_CAPTURE) {
             $status = $this->_helper->__('Captured');
         } else if (!empty(self::STATUS_CODES[$lastCode])) {
             $status = self::STATUS_CODES[$lastCode];
@@ -75,13 +81,19 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
                     if (!empty($lastOp) && is_array($lastOp)) {
                         $this->_lastOperation = [
                             'type' => $lastOp['type'],
-                            'code' => $lastOp['qp_status_code']
+                            'code' => $lastOp['qp_status_code'],
+                            'msg'  => $lastOp['qp_status_msg']
                         ];
                     }
                 }
             }
         }
         return $this->_lastOperation;
+    }
+
+    public function getLastMessage()
+    {
+        return $this->_getLastOperation()['msg'];
     }
 
     public function getLastType()
@@ -112,7 +124,12 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         }
         $this->setAmount($paymentAsArray['basket'][0]['item_price']);
         $this->setCurrencyCode($paymentAsArray['currency']);
+        if (!empty($paymentAsArray['metadata']) && is_array($paymentAsArray['metadata'])) {
+            $this->setFraudProbability($paymentAsArray['metadata']['fraud_suspected'] || $paymentAsArray['metadata']['fraud_reported'] ? self::FRAUD_PROBABILITY_HIGH : self::FRAUD_PROBABILITY_NONE);
+        }
         $this->setOperations(json_encode($paymentAsArray['operations']));
+        $this->setMetadata(json_encode($paymentAsArray['metadata']));
+        $this->setHash(md5($this->getReferenceId() . $this->getLink() . $this->getAmount()));
     }
 
     /**
@@ -134,14 +151,7 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         $api = Mage::getModel('pensopay/api');
 
         $paymentInfo = $api->getPayment($this->getReferenceId());
-        $paymentInfoAsArray = json_decode(json_encode($paymentInfo), true);
-
-        unset($paymentInfoAsArray['id']);
-        $this->addData($paymentInfoAsArray);
-        if (is_array($paymentInfoAsArray['link'])) {
-            $this->setLink($paymentInfoAsArray['link']['url']);
-        }
-        $this->setOperations(json_encode($paymentInfoAsArray['operations']));
+        $this->importFromRemotePayment($paymentInfo);
         $this->save();
     }
 }

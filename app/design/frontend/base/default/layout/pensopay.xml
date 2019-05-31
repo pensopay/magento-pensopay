@@ -2,9 +2,13 @@
 <layout>
     <pensopay_payment_iframe>
         <reference name="root">
-            <action method="setTemplate">
-                <template>pensopay/iframe.phtml</template>
-            </action>
+            <reference name="root">
+                <action method="setTemplate"><template>page/1column.phtml</template></action>
+            </reference>
         </reference>
+        <reference name="content">
+            <block type="core/template" template="pensopay/iframe.phtml" name="iframe" />
+        </reference>
+        <remove name="header" />
     </pensopay_payment_iframe>
 </layout>

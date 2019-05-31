@@ -2,7 +2,32 @@
     /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
     $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
     $url = $pensopayCheckoutHelper->getCoreSession()->getPaymentWindowUrl(true);
+    $store = Mage::app()->getStore();
 ?>
-<iframe src="<?= $url; ?>" height="100%" width="100%">
+<?php if (empty($url)): ?>
+    <script type="text/javascript">
+        window.location = '<?php echo $store->getUrl('/'); ?>';
+    </script>
+<?php else: ?>
+    <iframe src="<?= $url; ?>" height="100%" width="100%" style="min-height: 400px; min-height:500px">
 
-</iframe>
+    </iframe>
+
+    <script type="text/javascript">
+        var poller = setInterval(pollPayment, 5000);
+
+        function pollPayment() {
+            new Ajax.Request('<?php echo $store->getUrl('pensopay/payment/pollPayment') ?>', {
+                onSuccess: function(response) {
+                    var obj = JSON.parse(response.responseText);
+                    if (!obj.repeat) {
+                        clearInterval(poller);
+                    }
+                    if (obj.error || obj.success) {
+                        document.location = obj.redirect;
+                    }
+                }
+            });
+        }
+    </script>
+<?php endif; ?>

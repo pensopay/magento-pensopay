@@ -52,3 +52,8 @@
 "Result","Result"
 "Captured","Captured"
 "Time","Time"
+"Trying to capture more than authorized.","Trying to capture more than authorized."
+"Trying to refund more than captured.","Trying to refund more than captured."
+"Payment link:","Payment link:"
+"Error with the link.","Error with the link."
+"There was a problem with the payment. Please try again.","There was a problem with the payment. Please try again."
