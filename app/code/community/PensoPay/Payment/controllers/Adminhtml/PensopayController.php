@@ -142,14 +142,9 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
             $this->_getSession()->setPaymentLink($paymentLink);
             $this->_getSession()->addSuccess($paymentLink);
 
-            $paymentAsArray = json_decode(json_encode($payment), true);
             $paymentModel->setData($postData);
-            $paymentModel->addData($paymentAsArray);
+            $paymentModel->importFromRemotePayment($payment);
             $paymentModel->setLink($paymentLink);
-            $paymentModel->setAmount($paymentAsArray['basket'][0]['item_price']);
-            $paymentModel->setReferenceId((int)$payment->id);
-            $paymentModel->setCurrencyCode($payment->currency);
-            $paymentModel->setId($incId);
             $paymentModel->save();
 
             if ($sendEmail) {
@@ -187,13 +182,12 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
             $this->_getSession()->setPaymentLink($paymentLink);
             $this->_getSession()->addSuccess($paymentLink);
 
+            /** @var PensoPay_Payment_Model_Payment $newPayment */
             $newPayment = Mage::getModel('pensopay/payment');
-            $paymentAsArray = json_decode(json_encode($payment), true);
+
             $newPayment->setData($postData);
-            $newPayment->addData($paymentAsArray);
+            $newPayment->importFromRemotePayment($payment);
             $newPayment->setLink($paymentLink);
-            $newPayment->setAmount($paymentAsArray['basket'][0]['item_price']);
-            $newPayment->setReferenceId((int)$payment->id);
             $newPayment->setData('id', null);
             $newPayment->save();
 
@@ -242,6 +236,29 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
         return $this->_redirectToTerminal();
     }
 
+    public function updatePaymentStatusAction()
+    {
+        /** @var Mage_Core_Controller_Request_Http $request */
+        $request = $this->getRequest();
+
+        $incId = $request->getParam('id');
+
+        /** @var PensoPay_Payment_Model_Payment $paymentModel */
+        $paymentModel = Mage::getModel('pensopay/payment');
+        if (empty($incId)) {
+            return $this->_redirectToTerminal($this->__('Payment not found.'));
+        }
+        try {
+            $paymentModel->load($incId);
+            $paymentModel->updatePaymentRemote();
+            $this->_getSession()->addSuccess($this->__('Payment updated successfully.'));
+        } catch (Exception $e) {
+            $this->_getSession()->addError($e->getMessage());
+        }
+
+        return $this->_redirect('*/*/edit', array('id' => $paymentModel->getId()));
+    }
+
     public function cancelPaymentAction()
     {
         /** @var PensoPay_Payment_Model_Api $api */
@@ -249,10 +266,12 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
 
         /** @var Mage_Core_Controller_Request_Http $request */
         $request = $this->getRequest();
-        $postData = $request->getPost();
 
         $incId = $request->getParam('id');
+
+        /** @var PensoPay_Payment_Model_Payment $paymentModel */
         $paymentModel = Mage::getModel('pensopay/payment');
+
         if (!empty($incId)) { //Existing payment
             $paymentModel->load($incId);
             if (!$paymentModel->getId()) {
@@ -263,10 +282,7 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
                 $payment = $api->cancelPayment($paymentModel->getReferenceId());
                 $this->_getSession()->addSuccess($this->__('Payment cancelled.'));
 
-                $paymentAsArray = json_decode(json_encode($payment), true);
-                unset($paymentAsArray['id']);
-                $paymentModel->addData($paymentAsArray);
-                $paymentModel->setLink($paymentAsArray['link']['url']);
+                $paymentModel->importFromRemotePayment($payment);
                 $paymentModel->save();
             } catch (Exception $e) {
                 return $this->_redirectToTerminal($e->getMessage());
@@ -275,19 +291,5 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
             $this->_getSession()->addError($this->__('No payment id specified.'));
         }
         return $this->_redirectToTerminal();
-    }
-
-    public function sendEnquiry($email, $name, $link)
-    {
-        $customer = Mage::getSingleton('customer/session')->getCustomer();
-
-        $senderName = Mage::getStoreConfig('trans_email/ident_support/name');
-        $senderEmail = Mage::getStoreConfig('trans_email/ident_support/email');
-        $sender = array('name' => $senderName, 'email' => $senderEmail);
-
-        $recepientEmail = $customer->getEmail();
-        $recepientName = $customer->getName();
-
-        Mage::getModel('core/email_template')->send($recepientEmail, $recepientName ?: '');
     }
 }

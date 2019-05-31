@@ -1,14 +1,17 @@
 <?php
 
-class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Renderer_Grid_Status extends Mage_Adminhtml_Block_Widget_Grid_Column_Renderer_Abstract
+class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit_Renderer_Status extends Varien_Data_Form_Element_Abstract
 {
-    public function render(Varien_Object $row)
+    public function getElementHtml()
     {
         /** @var PensoPay_Payment_Helper_Data $helper */
         $helper = Mage::helper('pensopay');
 
+        //value in this case is the payment id
+        $value = $this->getEscapedValue();
+
         /** @var PensoPay_Payment_Model_Payment $payment */
-        $payment = Mage::getModel('pensopay/payment')->load($row->getData('id'));
+        $payment = Mage::getModel('pensopay/payment')->load($value);
 
         $extraClass = $helper->getStatusColorCode($payment->getLastCode());
         $html = "
@@ -16,7 +19,6 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Renderer_Grid_Status exte
                 {$payment->getDisplayStatus()}
             </div>
         ";
-
         return $html;
     }
 }

@@ -21,23 +21,15 @@ class PensoPay_Payment_Model_Observer
     {
         /** @var PensoPay_Payment_Model_Resource_Payment_Collection $collection */
         $collection = Mage::getResourceModel('pensopay/payment_collection');
-
-        /** @var PensoPay_Payment_Model_Api $api */
-        $api = Mage::getModel('pensopay/api');
+        $collection->addFieldToFilter('state', array('nin' => PensoPay_Payment_Model_Payment::FINALIZED_STATES));
+        $collection->addFieldToFilter('reference_id', array('notnull' => true));
 
         /** @var PensoPay_Payment_Model_Payment $payment */
         foreach ($collection as $payment) {
-            if ($payment->getReferenceId() && !in_array($payment->getState(), PensoPay_Payment_Model_Payment::FINALIZED_STATES)) {
-                $paymentIncrementId = $payment->getId();
-                $paymentInfo = $api->getPayment($payment->getReferenceId());
-                $paymentInfoAsArray = json_decode(json_encode($paymentInfo), true);
-
-                unset($paymentInfoAsArray['id']);
-                $payment->addData($paymentInfoAsArray);
-                if (is_array($paymentInfoAsArray['link'])) {
-                    $payment->setLink($paymentInfoAsArray['link']['url']);
-                }
-                $payment->save();
+            try {
+                $payment->updatePaymentRemote();
+            } catch (Exception $e) {
+                Mage::log('CRON: Could not update payment remotely. Exception: ' . $e->getMessage(), LOG_WARNING, PensoPay_Payment_Helper_Data::LOG_FILENAME);
             }
         }
         return $this;

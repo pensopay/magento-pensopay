@@ -11,19 +11,23 @@
 
 }
 
-.payment-status.red {
+.payment-status.red,
+.adminhtml-pensopay-edit table.operations tr.red {
     background: rgb(255, 40, 0);
 }
 
-.payment-status.yellow {
+.payment-status.yellow,
+.adminhtml-pensopay-edit table.operations tr.yellow {
     background: rgb(250, 218, 94);
 }
 
-.payment-status.orange {
+.payment-status.orange,
+.adminhtml-pensopay-edit table.operations tr.orange {
     background: rgb(255, 102, 0);
 }
 
-.payment-status.green {
+.payment-status.green,
+.adminhtml-pensopay-edit table.operations tr.green {
     background: rgb(57, 255, 20);
 }
 
@@ -35,4 +39,36 @@ a.payment-link {
 
 #pensopay_virtualterminal_grid_table td {
     vertical-align: middle;
+}
+
+.adminhtml-pensopay-edit .payment-status {
+    text-align: center;
+}
+
+.adminhtml-pensopay-edit table.operations {
+    text-align: center;
+    border: 1px solid grey;
+    padding: 15px;
+    border-spacing: 0;
+    min-width: 400px;
+}
+
+.adminhtml-pensopay-edit table.operations th,
+.adminhtml-pensopay-edit table.operations tr,
+.adminhtml-pensopay-edit table.operations td {
+    text-align: center;
+}
+
+.adminhtml-pensopay-edit table.operations tr:not(:first-child) {
+    margin-top:5px;
+}
+
+.adminhtml-pensopay-edit table.operations tr,
+.adminhtml-pensopay-edit table.operations td {
+    padding: 10px;
+    border-bottom-width: 5px;
+}
+
+.adminhtml-pensopay-edit div#log_fieldset table:not(.operations) td.label {
+    display: none;
 }

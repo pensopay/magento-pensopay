@@ -142,26 +142,30 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit_Form extends Mage_Ad
                     'value'                 => $id,
                     'required'              => true
                 ), 'order_id');
+
+                $paymentFieldset->addType('payment_state', 'PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit_Renderer_Status');
+                $paymentState = $paymentFieldset->addField('state', 'payment_state', array(
+                    'label'                 => $this->_helper->__('State'),
+                    'title'                 => $this->_helper->__('State'),
+                    'name'                  => 'state',
+                    'required'              => true,
+                    'value'                 => $payment->getId()
+                ), 'id');
+
+                $transactionLogFieldset = $form->addFieldset('log_fieldset', array('legend'    => $this->_helper->__('Transaction Log')));
+
+                $transactionLogFieldset->addType('operations', 'PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit_Renderer_Operations');
+                $transactionLog = $transactionLogFieldset->addField('transaction_log', 'operations', array(
+                    'name'                  => 'operations',
+                    'value'                 => $payment->getOperations(),
+                    'required'              => false
+                ));
             }
         }
 
         $this->setForm($form);
     }
 
-    /**
-     * Make sure edit data is there if we're editing a payment
-     * @return string
-     */
-    public function getFormHtml()
-    {
-        $form = $this->getChild('form');
-        if ($form) {
-            if ($this->_objId) {
-
-            }
-        }
-        return parent::getFormHtml();
-    }
 
     protected function _getAllLocales()
     {

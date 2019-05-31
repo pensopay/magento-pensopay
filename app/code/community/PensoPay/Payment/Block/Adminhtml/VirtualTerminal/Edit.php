@@ -47,6 +47,14 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
             $updateAndSend = $this->getUrl('*/*/updateAndSend');
             $updateAndPay = $this->getUrl('*/*/updateAndPay');
             $cancelUrl = $this->getUrl('*/*/cancelPayment', array('id' => $this->_objId));
+            $updateStatusUrl = $this->getUrl('*/*/updatePaymentStatus', array('id' => $this->_objId));
+
+            $this->_addButton('updateStatus', array(
+                'label' => $this->__('Get Payment Status'),
+                'onclick' => sprintf("
+                        editForm.submit('%s');", $updateStatusUrl),
+                'class' => 'save',
+            ), 1, 0);
 
             /**
              * We could be doing a check for order validity here, but we're doing this on the controller

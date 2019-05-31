@@ -14,6 +14,13 @@
         </reference>
     </adminhtml_pensopay_terminal>
     <adminhtml_pensopay_edit>
+        <reference name="head">
+            <action method="addCss">
+                <name>css/pensopay/payment/virtualterminal.css</name>
+            </action>
+        </reference>
+    </adminhtml_pensopay_edit>
+    <adminhtml_pensopay_edit>
         <reference name="content">
             <block type="pensopay/adminhtml_virtualTerminal_edit" name="pensopay_virtualterminal" />
         </reference>

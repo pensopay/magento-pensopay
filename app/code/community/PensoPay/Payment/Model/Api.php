@@ -177,7 +177,7 @@ class PensoPay_Payment_Model_Api
      */
     public function createPaymentLink(Mage_Sales_Model_Order $order, $paymentId)
     {
-        Mage::log($paymentId, null, 'pensopay.log');
+        Mage::log($paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
         $request = new Varien_Object();
         $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
@@ -226,7 +226,7 @@ class PensoPay_Payment_Model_Api
      */
     public function deletePaymentLink($paymentId)
     {
-        Mage::log('Deleting payment link for ' . $paymentId, null, 'pensopay.log');
+        Mage::log('Deleting payment link for ' . $paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
         $request = new Varien_Object();
         $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
@@ -239,7 +239,7 @@ class PensoPay_Payment_Model_Api
 
     public function getPayment($paymentId)
     {
-        Mage::log('Updating payment state for ' . $paymentId, null, 'pensopay.log');
+        Mage::log('Updating payment state for ' . $paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
         $request = new Varien_Object();
         $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
@@ -284,7 +284,7 @@ class PensoPay_Payment_Model_Api
         $request = $client->request();
 
         if (! in_array($request->getStatus(), $expectedResponseCodes)) {
-            Mage::log($request->getBody(), null, 'pensopay.log');
+            Mage::log($request->getBody(), null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
             Mage::throwException($request->getBody());
         }
 
