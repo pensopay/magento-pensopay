@@ -1,0 +1,18 @@
+<?php $_code = $this->getMethodCode() ?>
+<ul id="payment_form_<?php echo $_code ?>" style="display:none">
+    <li>
+        <div class="<?php echo $this->getMethodCode() ?>-instructions-content">
+            <?php echo nl2br($this->getConfigData('instructions')); ?>
+            <?php if ((int)$this->getConfigData('transactionfee') == 1): ?>
+                <?php if ($this->getConfigData('transactionfee')) : ?>
+                    <br>
+                    <br>
+                    <b><?php echo Mage::helper('pensopay')->__("Tranaktionsgebyr"); ?></b>
+                    <br>
+                    <?php echo Mage::helper('pensopay')->__("Der vil blive opkrævet et transaktionsgebyr ved brug af denne betalingsmetode. Gebyr størrelsen afhænger af kortvalg og vil blive tilføjet ved betaling."); ?>
+                <?php endif; ?>
+            <?php endif; ?>
+            <br/>
+        </div>
+    </li>
+</ul>

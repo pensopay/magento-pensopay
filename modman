@@ -2,8 +2,9 @@ app/code/community/PensoPay/Payment	                                app/code/com
 app/design/adminhtml/default/default/layout/pensopay.xml	        app/design/adminhtml/default/default/layout/pensopay.xml
 app/design/adminhtml/default/default/template/pensopay              app/design/adminhtml/default/default/template/pensopay
 app/design/frontend/base/default/layout/pensopay.xml                app/design/frontend/base/default/layout/pensopay.xml
-app/design/frontend/base/default/template/pensopay/iframe.phtml     app/design/frontend/base/default/template/pensopay/iframe.phtml
+app/design/frontend/base/default/template/pensopay                  app/design/frontend/base/default/template/pensopay
 app/etc/modules/PensoPay_Payment.xml	                            app/etc/modules/PensoPay_Payment.xml
 app/locale/en_US/PensoPay_Payment.csv                               app/locale/en_US/PensoPay_Payment.csv
 app/locale/en_US/template/email/pensopay_virtualterminal_link.html  app/locale/en_US/template/email/pensopay_virtualterminal_link.html
 skin/adminhtml/default/default/css/pensopay/payment                 skin/adminhtml/default/default/css/pensopay/payment
+skin/frontend/base/default/images/pensopaypayment                   skin/frontend/base/default/images/pensopaypayment

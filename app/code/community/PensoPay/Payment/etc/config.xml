@@ -132,6 +132,8 @@
                 <checkout_method>redirect</checkout_method>
                 <auto_capture>0</auto_capture>
                 <auto_fee>0</auto_fee>
+                <cardlogos>dankort,visa,mastercard,maestro</cardlogos>
+                <instructions>Pay with your credit card via PensoPay</instructions>
             </pensopay>
         </payment>
     </default>
