@@ -47,6 +47,8 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
             $updateAndSend = $this->getUrl('*/*/updateAndSend');
             $updateAndPay = $this->getUrl('*/*/updateAndPay');
             $cancelUrl = $this->getUrl('*/*/cancelPayment', array('id' => $this->_objId));
+            $captureUrl = $this->getUrl('*/*/capturePayment', array('id' => $this->_objId));
+            $refundUrl = $this->getUrl('*/*/refundPayment', array('id' => $this->_objId));
             $updateStatusUrl = $this->getUrl('*/*/updatePaymentStatus', array('id' => $this->_objId));
 
             $this->_addButton('updateStatus', array(
@@ -60,8 +62,9 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
              * We could be doing a check for order validity here, but we're doing this on the controller
              * By now it can be assumed the order id is specified and it exists in the database.
              */
+            /** @var PensoPay_Payment_Model_Payment $payment */
             $payment = Mage::getModel('pensopay/payment')->load($this->_objId);
-            if ($payment->getState() === PensoPay_Payment_Model_Payment::STATE_NEW) {
+            if ($payment->canCancel()) {
                 $this->_addButton('cancel', array(
                     'label' => $this->__('Cancel'),
                     'class' => 'delete',
@@ -75,6 +78,34 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
                 ), 1, 4);
             }
 
+            if ($payment->canCapture()) {
+                $this->_addButton('Capture', array(
+                    'label' => $this->__('Capture'),
+                    'class' => 'save',
+                    'onclick' => 'deleteConfirm(\''
+                        . Mage::helper('core')->jsQuoteEscape(
+                            $this->__('Are you sure you want to do this?')
+                        )
+                        . '\', \''
+                        . $captureUrl
+                        . '\')',
+                ), 1, 5);
+            }
+
+            if ($payment->canRefund()) {
+                $this->_addButton('Refund', array(
+                    'label' => $this->__('Refund'),
+                    'class' => 'cancel',
+                    'onclick' => 'deleteConfirm(\''
+                        . Mage::helper('core')->jsQuoteEscape(
+                            $this->__('Are you sure you want to do this?')
+                        )
+                        . '\', \''
+                        . $refundUrl
+                        . '\')',
+                ), 1, 6);
+            }
+
             if ($payment->getState() === PensoPay_Payment_Model_Payment::STATE_INITIAL) {
                 $this->_addButton('updateAndSend', array(
                     'label' => $this->__('Update Payment and Send Link'),
@@ -82,7 +113,7 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
                         $('customer_email').classList.add('required-entry');
                         editForm.submit('%s');", $updateAndSend),
                     'class' => 'save',
-                ), 1, 5);
+                ), 1, 7);
 
                 /**
                  * Onclick explanation
@@ -99,7 +130,7 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit extends Mage_Adminht
                         $('customer_email').classList.remove('required-entry');
                         editForm.submit('%s');", $updateAndPay),
                     'class' => 'save',
-                ), 1, 6);
+                ), 1, 8);
             }
         }
     }

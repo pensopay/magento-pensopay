@@ -18,7 +18,7 @@ $tblPayments = $installer->getConnection()
         'unsigned' => true
     ), 'Reference ID')
     ->addColumn('is_virtualterminal', Varien_Db_Ddl_Table::TYPE_BOOLEAN, 11, array('nullable' => false, 'default' => 0), 'Is Payment VirtualTerminal')
-    ->addColumn('order_id', Varien_Db_Ddl_Table::TYPE_INTEGER, 11, array('nullable' => false, 'unsigned' => true), 'Order ID')
+    ->addColumn('order_id', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false, 'unsigned' => true), 'Order ID')
     ->addColumn('accepted', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'Accepted by provider')
     ->addColumn('currency', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'Currency')
     ->addColumn('state', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array('nullable' => false), 'State')

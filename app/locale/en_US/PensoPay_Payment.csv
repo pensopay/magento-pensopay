@@ -51,6 +51,9 @@
 "Type","Type"
 "Result","Result"
 "Captured","Captured"
+"Capture","Capture"
+"Refund","Refund",
+"Cancel","Cancel"
 "Time","Time"
 "Trying to capture more than authorized.","Trying to capture more than authorized."
 "Trying to refund more than captured.","Trying to refund more than captured."
@@ -58,3 +61,8 @@
 "Error with the link.","Error with the link."
 "There was a problem with the payment. Please try again.","There was a problem with the payment. Please try again."
 "Which Card logos to show","Which Card logos to show"
+"Success.","Success."
+"Are you sure?","Are you sure?"
+"No payments found.","No payments found."
+"Cancelled","Cancelled",
+"Refunded","Refunded"

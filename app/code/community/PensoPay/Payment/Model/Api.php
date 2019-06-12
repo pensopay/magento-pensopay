@@ -149,7 +149,7 @@ class PensoPay_Payment_Model_Api
         return json_decode($payment);
     }
 
-    public function cancelPayment($paymentId)
+    public function cancel($paymentId)
     {
         $request = new Varien_Object();
         $request->setId($paymentId);
@@ -159,6 +159,21 @@ class PensoPay_Payment_Model_Api
         //Update payment via API
         $endpoint = sprintf('payments/%s/cancel?synchronized', $paymentId);
         $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST, [200, 202]);
+
+        return json_decode($payment);
+    }
+
+    public function refund($paymentId, $amount)
+    {
+        $request = new Varien_Object();
+        $request->setId($paymentId);
+        $request->setAmount($amount * 100);
+
+        Mage::dispatchEvent('pensopay_refund_payment_before', ['request' => $request]);
+
+        //Update payment via API
+        $endpoint = sprintf('payments/%s/refund?synchronized', $paymentId);
+        $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST);
 
         return json_decode($payment);
     }
@@ -184,7 +199,6 @@ class PensoPay_Payment_Model_Api
             if (!$order->getNoRedirects()) {
                 $request->setContinueurl($this->getContinueUrl($order->getStore()));
                 $request->setCancelurl($this->getCancelUrl($order->getStore()));
-                $request->setCallbackurl($this->getCallbackUrl($order->getStore()));
             }
             $request->setLanguage($this->getLanguageFromLocale(Mage::app()->getLocale()->getLocaleCode()));
             $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE));
@@ -195,6 +209,16 @@ class PensoPay_Payment_Model_Api
             $request->setAutocapture($order->getAutocapture());
             $request->setAutofee($order->getAutofee());
         }
+
+        if (!$order->getNoRedirects()) {
+            if ($order->getIsVirtualTerminal()) {
+                $store = array_values(Mage::app()->getStores())[0]; //First non-admin store
+            } else {
+                $store = $order->getStore();
+            }
+            $request->setCallbackUrl($this->getCallbackUrl($store));
+        }
+
         $request->setPaymentMethods(Mage::getModel('pensopay/method')->getPaymentMethods());
 //        $request->setBrandingId($brandingId);
 //        $request->setGoogleAnalyticsTrackingId($payment->getConfigData('googleanalyticstracking'));
@@ -246,21 +270,6 @@ class PensoPay_Payment_Model_Api
 
         //Update payment via API
         $endpoint = sprintf('payments/%s/capture?synchronized', $paymentId);
-        $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST);
-
-        return json_decode($payment);
-    }
-
-    public function refund($paymentId, $amount)
-    {
-        $request = new Varien_Object();
-        $request->setId($paymentId);
-        $request->setAmount($amount * 100);
-
-        Mage::dispatchEvent('pensopay_refund_payment_before', ['request' => $request]);
-
-        //Update payment via API
-        $endpoint = sprintf('payments/%s/refund?synchronized', $paymentId);
         $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::POST);
 
         return json_decode($payment);

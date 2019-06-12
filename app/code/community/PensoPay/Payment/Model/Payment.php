@@ -22,6 +22,8 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
 
     const OPERATION_CAPTURE = 'capture';
     const OPERATION_AUTHORIZE = 'authorize';
+    const OPERATION_CANCEL = 'cancel';
+    const OPERATION_REFUND = 'refund';
 
     const FRAUD_PROBABILITY_HIGH = 'high';
     const FRAUD_PROBABILITY_NONE = 'none';
@@ -65,13 +67,17 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         $status = '';
         if ($lastCode == self::STATUS_APPROVED && $this->getLastType() == self::OPERATION_CAPTURE) {
             $status = $this->_helper->__('Captured');
+        } else if ($lastCode == self::STATUS_APPROVED && $this->getLastType() == self::OPERATION_CANCEL) {
+            $status = $this->_helper->__('Cancelled');
+        } else if ($lastCode == self::STATUS_APPROVED && $this->getLastType() == self::OPERATION_REFUND) {
+            $status = $this->_helper->__('Refunded');
         } else if (!empty(self::STATUS_CODES[$lastCode])) {
             $status = self::STATUS_CODES[$lastCode];
         }
         return sprintf('%s (%s)', $status, $this->getState());
     }
 
-    protected function _getLastOperation()
+    public function getLastOperation()
     {
         if (empty($this->_lastOperation)) {
             if (!empty($this->getOperations())) {
@@ -93,17 +99,17 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
 
     public function getLastMessage()
     {
-        return $this->_getLastOperation()['msg'];
+        return $this->getLastOperation()['msg'];
     }
 
     public function getLastType()
     {
-        return $this->_getLastOperation()['type'];
+        return $this->getLastOperation()['type'];
     }
 
     public function getLastCode()
     {
-        return $this->_getLastOperation()['code'];
+        return $this->getLastOperation()['code'];
     }
 
     /**
@@ -111,6 +117,11 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
      */
     public function importFromRemotePayment($payment)
     {
+        if (!Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_TESTMODE_ENABLED) && $payment->test_mode) {
+            $this->setState(self::STATE_REJECTED);
+            return;
+        }
+
         $paymentAsArray = json_decode(json_encode($payment), true);
         $this->setReferenceId($paymentAsArray['id']);
         unset($paymentAsArray['id']); //We don't want to override the object id with the remote id
@@ -130,6 +141,20 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         $this->setOperations(json_encode($paymentAsArray['operations']));
         $this->setMetadata(json_encode($paymentAsArray['metadata']));
         $this->setHash(md5($this->getReferenceId() . $this->getLink() . $this->getAmount()));
+
+        if (!empty($payment->operations)) {
+            $amountCaptured = 0;
+            $amountRefunded = 0;
+            foreach ($payment->operations as $operation) {
+                if ($operation->type == 'capture') {
+                    $amountCaptured += $operation->amount;
+                } else if ($operation->type == 'refund') {
+                    $amountRefunded += $operation->amount;
+                }
+            }
+            $this->setAmountCaptured($amountCaptured / 100);
+            $this->setAmountRefunded($amountRefunded / 100);
+        }
     }
 
     /**
@@ -153,5 +178,20 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         $paymentInfo = $api->getPayment($this->getReferenceId());
         $this->importFromRemotePayment($paymentInfo);
         $this->save();
+    }
+
+    public function canCapture()
+    {
+        return $this->getState() === self::STATE_NEW;
+    }
+
+    public function canCancel()
+    {
+        return $this->getState() === self::STATE_NEW;
+    }
+
+    public function canRefund()
+    {
+        return ($this->getState() === self::STATE_PROCESSED && ($this->getAmount() !== $this->getAmountRefunded()));
     }
 }

@@ -133,40 +133,36 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 
         if ($checksum === $this->getRequest()->getServer('HTTP_QUICKPAY_CHECKSUM_SHA256')) {
             $operation = end($request->operations);
-            /** @var Mage_Sales_Model_Order $order */
-            $order = Mage::getModel('sales/order')->loadByIncrementId($request->order_id);
 
-            if (! Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_TESTMODE_ENABLED) && $request->test_mode) {
-                //Cancel order
-                if ($order->canCancel()) {
-                    try {
-                        $order->cancel();
-                        $order->addStatusToHistory($order->getStatus(), "Order placed with test card.");
-                        $order->save();
-                    } catch (Exception $e) {
-                        Mage::log('Failed to cancel testmode order #' . $order->getIncrementId(), null, 'qp_debug.log');
+            /** @var PensoPay_Payment_Model_Payment $paymentModel */
+            $paymentModel = Mage::getModel('pensopay/payment')->load($request->order_id, 'order_id');
+
+            if (!$paymentModel->getIsVirtualterminal()) {
+                /** @var Mage_Sales_Model_Order $order */
+                $order = Mage::getModel('sales/order')->loadByIncrementId($request->order_id);
+
+                if (!Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_TESTMODE_ENABLED) && $request->test_mode) {
+                    //Cancel order
+                    if ($order->canCancel()) {
+                        try {
+                            $order->cancel();
+                            $order->addStatusToHistory($order->getStatus(), "Order placed with test card.");
+                            $order->save();
+                        } catch (Exception $e) {
+                            Mage::log('Failed to cancel testmode order #' . $order->getIncrementId(), null, 'qp_debug.log');
+                        }
                     }
-                }
 
-                $this->getResponse()->setBody(json_encode([
-                    'error' => 'Attempted to pay with test card but testmode is disabled',
-                ]));
+                    $this->getResponse()->setBody(json_encode([
+                        'error' => 'Attempted to pay with test card but testmode is disabled',
+                    ]));
 
-                return $this;
-            }
-
-            if ($request->accepted && $operation->type == 'authorize') {
-                $metadata = $request->metadata;
-                $fraudSuspected = $metadata->fraud_suspected;
-
-                $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_HIGH;
-
-                if ($fraudSuspected) {
-                    $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_HIGH;
-                } else {
-                    $fraudProbability = PensoPay_Payment_Model_Payment::FRAUD_PROBABILITY_NONE;
+                    return $this;
                 }
             }
+
+            $paymentModel->importFromRemotePayment($request);
+            $paymentModel->save();
         }
 //        $payment = $order->getPayment();
 //        $txnId = $transactionResponse->transaction->id;

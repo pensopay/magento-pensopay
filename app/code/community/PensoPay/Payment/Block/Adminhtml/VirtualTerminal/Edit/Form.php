@@ -22,7 +22,7 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Edit_Form extends Mage_Ad
             'label'                 => $this->_helper->__('Order ID'),
             'title'                 => $this->_helper->__('Order ID'),
             'name'                  => 'order_id',
-            'class'                 => 'validate-number validate-length maximum-length-20 minimum-length-4',
+            'class'                 => 'validate-length maximum-length-20 minimum-length-4',
             'required'              => true
         ));
 

@@ -20,6 +20,33 @@ class PensoPay_Payment_Block_Adminhtml_VirtualTerminal_Grid extends Mage_Adminht
         return parent::_prepareCollection();
     }
 
+    protected function _prepareMassaction()
+    {
+        $this->setMassactionIdField('id');
+
+        $helper = Mage::helper('pensopay');
+
+        /** @var Mage_Adminhtml_Block_Widget_Grid_Massaction_Abstract $massActionBlock */
+        $massActionBlock = $this->getMassactionBlock();
+        $massActionBlock->setFormFieldName('id');
+        $massActionBlock->addItem('capture', array(
+            'label'=> $helper->__('Capture'),
+            'url'  => $this->getUrl('*/*/massCapture', array('' => '')),
+            'confirm' => $helper->__('Are you sure?')
+        ));
+        $massActionBlock->addItem('refund', array(
+            'label'=> $helper->__('Refund'),
+            'url'  => $this->getUrl('*/*/massRefund', array('' => '')),
+            'confirm' => $helper->__('Are you sure?')
+        ));
+        $massActionBlock->addItem('cancel', array(
+            'label'=> $helper->__('Cancel'),
+            'url'  => $this->getUrl('*/*/massCancel', array('' => '')),
+            'confirm' => $helper->__('Are you sure?')
+        ));
+        return parent::_prepareMassaction();
+    }
+
     protected function _prepareColumns()
     {
         $this->addColumn('id', array(

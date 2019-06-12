@@ -3,6 +3,12 @@
 class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Controller_Action
 {
 
+    /** @var PensoPay_Payment_Model_Payment $_payment */
+    protected $_payment = null;
+
+    /** @var bool $_redirect */
+    protected $_redirect = true;
+
     public function indexAction()
     {
         $this->_redirectToTerminal();
@@ -232,37 +238,119 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
         return $this->_redirect('*/*/edit', array('id' => $paymentModel->getId()));
     }
 
-    public function cancelPaymentAction()
+    protected function _getPayment()
+    {
+        if (!$this->_payment) {
+            /** @var Mage_Core_Controller_Request_Http $request */
+            $request = $this->getRequest();
+
+            $incId = $request->getParam('id');
+
+            /** @var PensoPay_Payment_Model_Payment $paymentModel */
+            $paymentModel = Mage::getModel('pensopay/payment');
+            if (!empty($incId)) { //Existing payment
+                $paymentModel->load($incId);
+
+                if (!$paymentModel->getId()) {
+                    $this->_redirectToTerminal($this->__('Payment not found.'));
+                }
+                $this->_payment = $paymentModel;
+            } else {
+                $this->_getSession()->addError($this->__('No payment id specified.'));
+            }
+        }
+        return $this->_payment;
+    }
+
+    protected function _genericPaymentCallback($action)
     {
         /** @var PensoPay_Payment_Model_Api $api */
         $api = Mage::getModel('pensopay/api');
 
-        /** @var Mage_Core_Controller_Request_Http $request */
-        $request = $this->getRequest();
-
-        $incId = $request->getParam('id');
-
-        /** @var PensoPay_Payment_Model_Payment $paymentModel */
-        $paymentModel = Mage::getModel('pensopay/payment');
-
-        if (!empty($incId)) { //Existing payment
-            $paymentModel->load($incId);
-            if (!$paymentModel->getId()) {
-                return $this->_redirectToTerminal($this->__('Payment not found.'));
-            }
-
+        $paymentModel = $this->_getPayment();
+        if ($paymentModel) {
             try {
-                $payment = $api->cancelPayment($paymentModel->getReferenceId());
-                $this->_getSession()->addSuccess($this->__('Payment cancelled.'));
+                if (in_array($action, array('capture', 'refund'))) {
+                    $payment = $api->{$action}($paymentModel->getReferenceId(), $paymentModel->getAmount());
+                } else {
+                    $payment = $api->{$action}($paymentModel->getReferenceId());
+                }
+                $this->_getSession()->addSuccess($this->__('Successfully processed Order ID: ') . $paymentModel->getOrderId());
 
                 $paymentModel->importFromRemotePayment($payment);
                 $paymentModel->save();
             } catch (Exception $e) {
-                return $this->_redirectToTerminal($e->getMessage());
+                if ($this->_redirect) {
+                    return $this->_redirectToTerminal($e->getMessage());
+                } else {
+                    $this->_getSession()->addError($e->getMessage());
+                    return false;
+                }
             }
+        }
+
+        if ($this->_redirect) {
+            return $this->_redirectToTerminal();
         } else {
-            $this->_getSession()->addError($this->__('No payment id specified.'));
+            return true;
+        }
+    }
+
+    public function cancelPaymentAction()
+    {
+        return $this->_genericPaymentCallback('cancel');
+    }
+
+    public function capturePaymentAction()
+    {
+        return $this->_genericPaymentCallback('capture');
+    }
+
+    public function refundPaymentAction()
+    {
+        return $this->_genericPaymentCallback('refund');
+    }
+
+    protected function _genericMassPaymentAction($action)
+    {
+        /** @var Mage_Core_Controller_Request_Http $request */
+        $request = $this->getRequest();
+
+        $ids = $request->getParam('id');
+        if (!empty($ids)) {
+            /** @var PensoPay_Payment_Model_Resource_Payment_Collection $paymentCollection */
+            $paymentCollection = Mage::getResourceModel('pensopay/payment_collection');
+            $paymentCollection->addFieldToFilter('id', array('in' => $ids));
+
+            $this->_redirect = false;
+
+            if (!empty($paymentCollection->getItems())) {
+                /** @var PensoPay_Payment_Model_Payment $payment */
+                foreach ($paymentCollection as $payment) {
+                    if ($payment->{'can' . ucfirst($action)}()) { //canCapture, canCancel, canRefund
+                        $this->_payment = $payment;
+                        $this->_genericPaymentCallback($action);
+                    }
+                }
+            } else {
+                $this->_getSession()->addError($this->__('No payments found.'));
+            }
         }
         return $this->_redirectToTerminal();
+    }
+
+    public function massCaptureAction()
+    {
+        return $this->_genericMassPaymentAction('capture');
+    }
+
+    public function massCancelAction()
+    {
+        return $this->_genericMassPaymentAction('cancel');
+    }
+
+    public function massRefundAction()
+    {
+        return $this->_genericMassPaymentAction('refund');
     }
 }
