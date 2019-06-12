@@ -7,51 +7,51 @@ class PensoPay_Payment_Model_System_Config_Source_Cardlogos
         return array(
             array(
                 'value' => 'dankort',
-                'label' => Mage::helper('quickpaypayment')->__('Dankort')
+                'label' => Mage::helper('pensopay')->__('Dankort')
             ),
             array(
                 'value' => 'forbrugsforeningen',
-                'label' => Mage::helper('quickpaypayment')->__('Forbrugsforeningen')
+                'label' => Mage::helper('pensopay')->__('Forbrugsforeningen')
             ),
             array(
                 'value' => 'visa',
-                'label' => Mage::helper('quickpaypayment')->__('VISA')
+                'label' => Mage::helper('pensopay')->__('VISA')
             ),
             array(
                 'value' => 'visaelectron',
-                'label' => Mage::helper('quickpaypayment')->__('VISA Electron')
+                'label' => Mage::helper('pensopay')->__('VISA Electron')
             ),
             array(
                 'value' => 'mastercard',
-                'label' => Mage::helper('quickpaypayment')->__('MasterCard')
+                'label' => Mage::helper('pensopay')->__('MasterCard')
             ),
             array(
                 'value' => 'maestro',
-                'label' => Mage::helper('quickpaypayment')->__('Maestro')
+                'label' => Mage::helper('pensopay')->__('Maestro')
             ),
             array(
                 'value' => 'jcb',
-                'label' => Mage::helper('quickpaypayment')->__('JCB')
+                'label' => Mage::helper('pensopay')->__('JCB')
             ),
             array(
                 'value' => 'diners',
-                'label' => Mage::helper('quickpaypayment')->__('Diners Club')
+                'label' => Mage::helper('pensopay')->__('Diners Club')
             ),
             array(
                 'value' => 'amex',
-                'label' => Mage::helper('quickpaypayment')->__('AMEX')
+                'label' => Mage::helper('pensopay')->__('AMEX')
             ),
             array(
                 'value' => 'sofort',
-                'label' => Mage::helper('quickpaypayment')->__('Sofort')
+                'label' => Mage::helper('pensopay')->__('Sofort')
             ),
             array(
                 'value' => 'viabill',
-                'label' => Mage::helper('quickpaypayment')->__('ViaBill')
+                'label' => Mage::helper('pensopay')->__('ViaBill')
             ),
             array(
                 'value' => 'mobilepay',
-                'label' => Mage::helper('quickpaypayment')->__('MobilePay')
+                'label' => Mage::helper('pensopay')->__('MobilePay')
             )
         );
     }

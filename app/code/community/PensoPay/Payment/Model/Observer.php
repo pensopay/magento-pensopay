@@ -17,6 +17,48 @@ class PensoPay_Payment_Model_Observer
         }
     }
 
+    public function addViabillPricetag(Varien_Event_Observer $observer)
+    {
+        $block = $observer->getBlock();
+        /** @var PensoPay_Payment_Helper_Data $pensopayHelper */
+        $pensopayHelper = Mage::helper('pensopay');
+
+        if ($pensopayHelper->isViabillEnabled()) {
+            /** @var Mage_Core_Model_Layout $layout */
+            $layout = Mage::app()->getLayout();
+
+            /** @var Varien_Object $transport */
+            $transport = $observer->getTransport();
+
+            $html = $transport->getHtml();
+
+            if ($block instanceof Mage_Catalog_Block_Product_Price && !$block->getViabillSet()) {
+                /** @var Mage_Catalog_Model_Product $product */
+                $product = $block->getProduct();
+
+                /** @var Mage_Core_Block_Template $viabillTagBlock */
+                $viabillTagBlock = $layout->createBlock('core/template');
+                $viabillTagBlock->setTemplate('pensopay/viabill-tag.phtml')->setProduct($product);
+                if (in_array('catalog_product_view', $layout->getUpdate()->getHandles())) {
+                    $viabillTagBlock->setView('product');
+                } else {
+                    $viabillTagBlock->setView('list');
+                }
+
+                $html .= $viabillTagBlock->toHtml();
+                $transport->setHtml($html);
+                $block->setViabillSet(true);
+            } else if ($block instanceof Mage_Tax_Block_Checkout_Grandtotal) {
+                /** @var Mage_Core_Block_Template $viabillTagBlock */
+                $viabillTagBlock = $layout->createBlock('core/template');
+                $viabillTagBlock->setTemplate('pensopay/viabill-basket.phtml');
+
+                $html .= $viabillTagBlock->toHtml();
+                $transport->setHtml($html);
+            }
+        }
+    }
+
     public function updateVirtualterminalPaymentStatus()
     {
         /** @var PensoPay_Payment_Model_Resource_Payment_Collection $collection */

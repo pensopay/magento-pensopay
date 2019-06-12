@@ -199,15 +199,19 @@ class PensoPay_Payment_Model_Api
             if (!$order->getNoRedirects()) {
                 $request->setContinueurl($this->getContinueUrl($order->getStore()));
                 $request->setCancelurl($this->getCancelUrl($order->getStore()));
+            } else {
+                $request->setCancelurl($this->getCancelIframeUrl($order->getStore())); //Even if iframe, we need this to poll payment status
             }
             $request->setLanguage($this->getLanguageFromLocale(Mage::app()->getLocale()->getLocaleCode()));
             $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE));
             $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE));
+            $request->setPaymentMethods($order->getPayment()->getMethodInstance()->getPaymentMethods());
         } else { //Virtual Terminal order
             $request->setAmount($order->getGrandTotal() * 100);
             $request->setLanguage($this->getLanguageFromLocale($order->getLocaleCode()));
             $request->setAutocapture($order->getAutocapture());
             $request->setAutofee($order->getAutofee());
+            $request->setPaymentMethods(Mage::getModel('pensopay/method')->getPaymentMethods());
         }
 
         if (!$order->getNoRedirects()) {
@@ -218,8 +222,6 @@ class PensoPay_Payment_Model_Api
             }
             $request->setCallbackUrl($this->getCallbackUrl($store));
         }
-
-        $request->setPaymentMethods(Mage::getModel('pensopay/method')->getPaymentMethods());
 //        $request->setBrandingId($brandingId);
 //        $request->setGoogleAnalyticsTrackingId($payment->getConfigData('googleanalyticstracking'));
 //        $request->setGoogleAnalyticsClientId($payment->getConfigData('googleanalyticsclientid'));
@@ -370,6 +372,11 @@ class PensoPay_Payment_Model_Api
     private function getContinueUrl($store)
     {
         return $store->getUrl('pensopay/payment/success');
+    }
+
+    private function getCancelIframeUrl($store)
+    {
+        return $store->getUrl('pensopay/payment/iframeCancel');
     }
 
     /**

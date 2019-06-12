@@ -31,7 +31,6 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
     }
 
 
-
     /**
      * Redirect to gateway
      */
@@ -196,6 +195,18 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         $payment->load($order->getIncrementId(), 'order_id');
         if ($payment->getId()) {
             try {
+                if ($payment->getState() === PensoPay_Payment_Model_Payment::STATE_REJECTED) { //Check if cancelled from iframe first
+                    $this->getResponse()->setBody(json_encode(
+                        [
+                            'repeat' => 0,
+                            'error' => 1,
+                            'success' => 0,
+                            'redirect' => Mage::app()->getStore()->getUrl('pensopay/payment/cancel')
+                        ]
+                    ));
+                    return;
+                }
+
                 $payment->updatePaymentRemote();
 
                 if (in_array($payment->getLastType(), [
@@ -244,6 +255,26 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 'redirect' => Mage::app()->getStore()->getUrl('/')
             ]
         ));
+    }
+
+    public function iframeCancelAction()
+    {
+        /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+        $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
+
+        /** @var Mage_Checkout_Model_Session $session */
+        $session = $pensopayCheckoutHelper->getCheckoutSession();
+
+        /** @var PensoPay_Payment_Model_Api $api */
+        $api = Mage::getModel('pensopay/api');
+
+        /** @var PensoPay_Payment_Model_Payment $paymentModel */
+        $paymentModel = Mage::getModel('pensopay/payment');
+        $paymentModel->load($session->getLastRealOrderId(), 'order_id');
+        $paymentModel->setState(PensoPay_Payment_Model_Payment::STATE_REJECTED);
+        $paymentModel->save();
+
+        $this->getResponse()->setBody($this->__('Payment cancelled, please wait for a few seconds.'));
     }
 
     /**

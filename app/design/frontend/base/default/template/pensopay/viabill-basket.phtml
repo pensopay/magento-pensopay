@@ -1,0 +1,8 @@
+<?php
+    $quote = Mage::getSingleton('checkout/session')->getQuote();
+?>
+<tr>
+    <td colspan="2" class="a-right">
+        <div class="viabill-pricetag" data-view="basket" data-price="<?= $quote->getGrandTotal(); ?>"></div>
+    </td>
+</tr>

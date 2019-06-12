@@ -1,5 +1,18 @@
 <?xml version="1.0"?>
 <layout>
+    <default>
+        <reference name="head">
+            <action method="addItem" ifconfig="payment/pensopay_viabill/active">
+                <type>skin_css</type>
+                <name>css/pensopay/viabill.css</name>
+            </action>
+            <action method="addItem"><type>js_css</type><name>calendar/calendar-win2k-1.css</name><params/><!--<if/><condition>can_load_calendar_js</condition>--></action>
+
+        </reference>
+        <reference name="before_body_end">
+            <block type="core/template" name="viabill-script" template="pensopay/viabill-script.phtml" />
+        </reference>
+    </default>
     <pensopay_payment_iframe>
         <reference name="root">
             <reference name="root">

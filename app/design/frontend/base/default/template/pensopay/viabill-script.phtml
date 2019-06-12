@@ -1,0 +1,31 @@
+<?php
+    /** @var PensoPay_Payment_Helper_Data $pensopayHelper */
+    $pensopayHelper = Mage::helper('pensopay');
+    if ($pensopayHelper->isViabillEnabled()):
+        $shopId = $pensopayHelper->getViabillId();
+?>
+        <script>
+            var o;
+
+            var viabillInit = function() {
+                o =document.createElement('script');
+                o.type='text/javascript';
+                o.async=true;
+                o.id = 'viabillscript';
+                o.src='https://pricetag.viabill.com/script/<?= $shopId; ?>';
+                var s=document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(o,s);
+            };
+
+            var viabillReset = function() {
+              document.getElementById('viabillscript').remove();
+              vb = null;
+              pricetag = null;
+              viabillInit();
+            };
+
+            (function(){
+                viabillInit();
+            })();
+        </script>
+<?php endif; ?>

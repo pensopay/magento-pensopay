@@ -4,6 +4,19 @@ class PensoPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 {
     const LOG_FILENAME = 'pensopay.log';
 
+    const XML_PATH_VIABILL_ENABLED = 'payment/pensopay_viabill/active';
+    const XML_PATH_VIABILL_SHOPID = 'payment/pensopay_viabill/shop_id';
+
+    public function isViabillEnabled()
+    {
+        return Mage::getStoreConfigFlag(self::XML_PATH_VIABILL_ENABLED);
+    }
+
+    public function getViabillId()
+    {
+        return Mage::getStoreConfig(self::XML_PATH_VIABILL_SHOPID);
+    }
+
     public function getStateColorCode($value)
     {
         switch ($value) {

@@ -34,7 +34,7 @@ class PensoPay_Payment_Block_Form extends Mage_Payment_Block_Form
         if (count($cards) > 0) {
             $logoConfig = Mage::getModel('pensopay/system_config_source_cardlogos');
             foreach ($cards as $card) {
-                $html .= sprintf('<img src="%s" height="20" alt="%s"/>', $this->getSkinUrl("images/quickpaypayment/{$card}.png"), $logoConfig->getFrontendLabel($card));
+                $html .= sprintf('<img src="%s" height="20" alt="%s"/>', $this->getSkinUrl("images/pensopaypayment/{$card}.png"), $logoConfig->getFrontendLabel($card));
             }
         }
 

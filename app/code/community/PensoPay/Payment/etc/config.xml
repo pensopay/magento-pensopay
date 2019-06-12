@@ -80,6 +80,16 @@
                 </pensopay>
             </updates>
         </layout>
+        <events>
+            <core_block_abstract_to_html_after>
+                <observers>
+                    <pensopay_payment>
+                        <class>pensopay/observer</class>
+                        <method>addViabillPricetag</method>
+                    </pensopay_payment>
+                </observers>
+            </core_block_abstract_to_html_after>
+        </events>
     </frontend>
     <adminhtml>
         <layout>
@@ -135,6 +145,31 @@
                 <cardlogos>dankort,visa,mastercard,maestro</cardlogos>
                 <instructions>Pay with your credit card via PensoPay</instructions>
             </pensopay>
+            <pensopay_viabill>
+                <active>0</active>
+                <shop_id></shop_id>
+                <show_in_product>1</show_in_product>
+                <show_in_category>1</show_in_category>
+                <show_in_cart>1</show_in_cart>
+                <model>pensopay/method_viabill</model>
+                <title>PensoPay ViaBill</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with ViaBill</instructions>
+            </pensopay_viabill>
+            <pensopay_mobilepay>
+                <active>0</active>
+                <model>pensopay/method_mobilepay</model>
+                <title>PensoPay MobilePay</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with MobilePay</instructions>
+            </pensopay_mobilepay>
+            <pensopay_klarna>
+                <active>0</active>
+                <model>pensopay/method_klarna</model>
+                <title>PensoPay Klarna</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with Klarna</instructions>
+            </pensopay_klarna>
         </payment>
     </default>
 </config>
