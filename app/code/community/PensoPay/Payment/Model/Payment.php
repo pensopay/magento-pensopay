@@ -77,6 +77,32 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         return sprintf('%s (%s)', $status, $this->getState());
     }
 
+    public function getMetadata()
+    {
+        if (!empty($this->getData('metadata'))) {
+            return json_decode($this->getData('metadata'), true);
+        }
+        return [];
+    }
+
+    public function getFirstOperation()
+    {
+        if (!empty($this->getOperations())) {
+            $operations = json_decode($this->getOperations(), true);
+            if (!empty($operations) && is_array($operations)) {
+                $firstOp = array_shift($operations);
+                if (!empty($firstOp) && is_array($firstOp)) {
+                    return [
+                        'type' => $firstOp['type'],
+                        'code' => $firstOp['qp_status_code'],
+                        'msg'  => $firstOp['qp_status_msg']
+                    ];
+                }
+            }
+        }
+        return [];
+    }
+
     public function getLastOperation()
     {
         if (empty($this->_lastOperation)) {
@@ -154,6 +180,15 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
             }
             $this->setAmountCaptured($amountCaptured / 100);
             $this->setAmountRefunded($amountRefunded / 100);
+        }
+
+        $order = Mage::getModel('sales/order')->loadByIncrementId($this->getOrderId());
+        if ($order->getId()) {
+            $status = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_AFTERPAYMENT);
+            if ($order->getStatus() != $status) {
+                $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $status);
+                $order->save();
+            }
         }
     }
 

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <PensoPay_Payment>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </PensoPay_Payment>
     </modules>
     <crontab>
@@ -89,6 +89,24 @@
                     </pensopay_payment>
                 </observers>
             </core_block_abstract_to_html_after>
+            <sales_order_place_after>
+                <observers>
+                    <pensopay_payment>
+                        <type>singleton</type>
+                        <class>pensopay/observer</class>
+                        <method>saveOrder</method>
+                    </pensopay_payment>
+                </observers>
+            </sales_order_place_after>
+            <controller_action_postdispatch_checkout_onepage_savePayment>
+                <observers>
+                    <auto_register_payment>
+                        <type>singleton</type>
+                        <class>pensopay/observer</class>
+                        <method>autoRegisterState</method>
+                    </auto_register_payment>
+                </observers>
+            </controller_action_postdispatch_checkout_onepage_savePayment>
         </events>
     </frontend>
     <adminhtml>
@@ -108,6 +126,14 @@
                     </pensopay_feed_notifications>
                 </observers>
             </controller_action_predispatch>
+            <adminhtml_block_html_before>
+                <observers>
+                    <pensopay_payment_info>
+                        <class>pensopay/observer</class>
+                        <method>onAdminhtmlBlockHtmlBefore</method>
+                    </pensopay_payment_info>
+                </observers>
+            </adminhtml_block_html_before>
             <checkout_submit_all_after>
                 <observers>
                     <pensopay_payment>
@@ -144,6 +170,8 @@
                 <auto_fee>0</auto_fee>
                 <cardlogos>dankort,visa,mastercard,maestro</cardlogos>
                 <instructions>Pay with your credit card via PensoPay</instructions>
+                <order_status>pending</order_status>
+                <order_status_after_payment>processing</order_status_after_payment>
             </pensopay>
             <pensopay_viabill>
                 <active>0</active>

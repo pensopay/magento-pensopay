@@ -3,6 +3,21 @@
 class PensoPay_Payment_Model_Observer
 {
     /**
+     * Stores the branding id checkbox state on checkout session
+     *
+     * @param Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function autoRegisterState(Varien_Event_Observer $observer)
+    {
+        $data = $observer->getEvent()->getControllerAction()->getRequest()->getPost();
+        if (isset($data['pensopay_state'])) {
+            Mage::getSingleton('core/session')->setPensopayState($data['pensopay_state']); // Branding
+        }
+        return $this;
+    }
+
+    /**
      * Check for feed updates
      *
      * @param Varien_Event_Observer $observer
@@ -15,6 +30,24 @@ class PensoPay_Payment_Model_Observer
 
             $feedModel->checkUpdate();
         }
+    }
+
+    public function saveOrder($observer)
+    {
+        $session = Mage::getSingleton('adminhtml/session');
+
+        try {
+            $order = $observer->getEvent()->getOrder();
+            $payment = $order->getPayment()->getMethodInstance();
+            if ($payment instanceof PensoPay_Payment_Model_Payment) {
+                $order->setStatus(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_BEFOREPAYMENT));
+            }
+
+        } catch (Exception $e) {
+            $session->addException($e, Mage::helper('pensopay')->__("Can't change status of order", $e->getMessage()));
+        }
+
+        return $this;
     }
 
     public function addViabillPricetag(Varien_Event_Observer $observer)

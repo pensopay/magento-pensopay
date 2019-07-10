@@ -1,0 +1,53 @@
+<?php
+/** @var PensoPay_Payment_Block_Info $this */
+?>
+<p><?php echo $this->htmlEscape($this->getMethod()->getTitle()) ?></p>
+<?php
+$payment = $this->getPayment();
+if (!is_null($payment)): ?>
+    <?php
+        $metadata = $payment->getMetadata();
+        if (!empty($metadata)): ?>
+            <table border="0">
+                <?php if ($payment->getReferenceId()): ?>
+                    <tr>
+                        <td><?= $this->__('Transaction ID:'); ?></td>
+                        <td><?= $payment->getReferenceId(); ?></td>
+                    </tr>
+                <?php endif; ?>
+                <tr>
+                    <td><?= $this->__('Card Type:') ?></td>
+                    <?php
+                        $cardImagePath = sprintf('images/pensopaypayment/%s.png', $metadata['brand']);
+                        $cardImageUrl = $this->getSkinUrl($cardImagePath, array('_area' => 'frontend'));
+                    ?>
+                    <td>
+                        <img src="<?= $cardImageUrl; ?>" width="40" alt="<?= $metadata['brand']; ?>" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><?= $this->__('Currency:'); ?></td>
+                    <td><?= $payment->getCurrency(); ?></td>
+                </tr>
+                <tr>
+                    <td><?= $this->__('Card number:'); ?></td>
+                    <td><?= implode(' ', str_split(sprintf('%sXXXXXX%s', $metadata['bin'], $metadata['last4']), 4)); ?></td>
+                </tr>
+
+                <tr>
+                    <td><?= $this->__('Acquirer:'); ?></td>
+                    <td><?= $payment->getAcquirer(); ?></td>
+                </tr>
+
+                <tr>
+                    <td><?= $this->__('Is 3D Secure:'); ?></td>
+                    <td><?= $metadata['is_3d_secure'] ? $this->__('Yes') : $this->__('No'); ?></td>
+                </tr>
+            </table>
+            <br />
+        <?php endif;?>
+<?php else: ?>
+    <br />
+        <?= $this->__('Der er endnu ikke registreret nogen betaling for denne ordre!'); ?>
+    <br />
+<?php endif; ?>
