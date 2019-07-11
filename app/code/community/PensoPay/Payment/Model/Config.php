@@ -14,8 +14,6 @@ class PensoPay_Payment_Model_Config
     const XML_PATH_ORDER_STATUS_AFTERPAYMENT = 'payment/pensopay/order_status_after_payment';
     const XML_PATH_ORDER_STATUS_BEFOREPAYMENT = 'payment/pensopay/order_status';
     const XML_PATH_BRANDING = 'payment/pensopay/brandingid';
-    const XML_PATH_BRANDING_IDCHECKED = 'payment/pensopay/brandingidchecked';
-    const XML_PATH_BRANDING_IDCHECKEDTEXT = 'payment/pensopay/brandingidcheckedtext';
     const XML_PATH_ANALYTICS_TRACKING = 'payment/pensopay/googleanalyticstracking';
     const XML_PATH_ANALYTICS_CLIENT_ID = 'payment/pensopay/googleanalyticsclientid';
 }
