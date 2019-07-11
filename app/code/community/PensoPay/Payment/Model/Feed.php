@@ -7,7 +7,7 @@ class PensoPay_Payment_Model_Feed extends Mage_AdminNotification_Model_Feed
      */
     public function getFeedUrl()
     {
-        return 'https://rbech.com/feedtest';
+        return 'https://pensopay.com/magento-feed.xml';
     }
 
     /**
