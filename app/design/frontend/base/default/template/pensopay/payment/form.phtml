@@ -12,11 +12,6 @@
                     <?php echo Mage::helper('pensopay')->__("Der vil blive opkrævet et transaktionsgebyr ved brug af denne betalingsmetode. Gebyr størrelsen afhænger af kortvalg og vil blive tilføjet ved betaling."); ?>
                 <?php endif; ?>
             <?php endif; ?>
-            <br/>
-            <?php if ($this->getConfigData('brandingidchecked') != '') : ?>
-                <br/>
-                <input type="checkbox" name="pensopay_state[]" value="checkbox1"> <?php echo $this->__($this->getConfigData('brandingidcheckedtext'));?><br/>
-            <?php endif; ?>
         </div>
     </li>
 </ul>

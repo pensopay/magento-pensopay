@@ -3,21 +3,6 @@
 class PensoPay_Payment_Model_Observer
 {
     /**
-     * Stores the branding id checkbox state on checkout session
-     *
-     * @param Varien_Event_Observer $observer
-     * @return $this
-     */
-    public function autoRegisterState(Varien_Event_Observer $observer)
-    {
-        $data = $observer->getEvent()->getControllerAction()->getRequest()->getPost();
-        if (isset($data['pensopay_state'])) {
-            Mage::getSingleton('core/session')->setPensopayState($data['pensopay_state']); // Branding
-        }
-        return $this;
-    }
-
-    /**
      * Check for feed updates
      *
      * @param Varien_Event_Observer $observer

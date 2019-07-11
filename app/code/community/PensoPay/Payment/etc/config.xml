@@ -2,7 +2,7 @@
 <config>
     <modules>
         <PensoPay_Payment>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </PensoPay_Payment>
     </modules>
     <crontab>
@@ -98,15 +98,6 @@
                     </pensopay_payment>
                 </observers>
             </sales_order_place_after>
-            <controller_action_postdispatch_checkout_onepage_savePayment>
-                <observers>
-                    <auto_register_payment>
-                        <type>singleton</type>
-                        <class>pensopay/observer</class>
-                        <method>autoRegisterState</method>
-                    </auto_register_payment>
-                </observers>
-            </controller_action_postdispatch_checkout_onepage_savePayment>
         </events>
     </frontend>
     <adminhtml>
@@ -126,14 +117,6 @@
                     </pensopay_feed_notifications>
                 </observers>
             </controller_action_predispatch>
-            <adminhtml_block_html_before>
-                <observers>
-                    <pensopay_payment_info>
-                        <class>pensopay/observer</class>
-                        <method>onAdminhtmlBlockHtmlBefore</method>
-                    </pensopay_payment_info>
-                </observers>
-            </adminhtml_block_html_before>
             <checkout_submit_all_after>
                 <observers>
                     <pensopay_payment>

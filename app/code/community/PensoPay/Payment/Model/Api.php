@@ -214,15 +214,17 @@ class PensoPay_Payment_Model_Api
             $request->setPaymentMethods(Mage::getModel('pensopay/method')->getPaymentMethods());
         }
 
-        $pensopay_state = Mage::getSingleton('core/session')->getData('pensopay_state', true);
-        if (!empty($pensopay_state) && isset($pensopay_state[0]) && $pensopay_state[0] == 'checkbox1') {
-            $request->setBrandingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING_IDCHECKED));
-        } else {
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING)) {
             $request->setBrandingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING));
         }
 
-        $request->setGoogleAnalyticsTrackingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING));
-        $request->setGoogleAnalyticsClientId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID));
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING)) {
+            $request->setGoogleAnalyticsTrackingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING));
+        }
+
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID)) {
+            $request->setGoogleAnalyticsClientId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID));
+        }
 
         if (!$order->getNoRedirects()) {
             if ($order->getIsVirtualTerminal()) {
