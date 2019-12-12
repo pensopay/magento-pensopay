@@ -231,43 +231,4 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
     {
         return ($this->getState() === self::STATE_PROCESSED && ($this->getAmount() !== $this->getAmountRefunded()));
     }
-
-    protected function _getProductsQty($relatedItems)
-    {
-        $items = array();
-        foreach ($relatedItems as $item) {
-            $productId  = $item->getProductId();
-            if (!$productId) {
-                continue;
-            }
-            $children = $item->getChildrenItems();
-            if ($children) {
-                foreach ($children as $childItem) {
-                    $this->_addItemToQtyArray($childItem, $items);
-                }
-            } else {
-                $this->_addItemToQtyArray($item, $items);
-            }
-        }
-        return $items;
-    }
-
-    protected function _addItemToQtyArray($quoteItem, &$items)
-    {
-        $productId = $quoteItem->getProductId();
-        if (!$productId)
-            return;
-        if (isset($items[$productId])) {
-            $items[$productId]['qty'] += $quoteItem->getTotalQty();
-        } else {
-            $stockItem = null;
-            if ($quoteItem->getProduct()) {
-                $stockItem = $quoteItem->getProduct()->getStockItem();
-            }
-            $items[$productId] = array(
-                'item' => $stockItem,
-                'qty'  => $quoteItem->getTotalQty()
-            );
-        }
-    }
 }
