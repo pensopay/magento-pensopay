@@ -182,12 +182,19 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
             $this->setAmountRefunded($amountRefunded / 100);
         }
 
+        /** @var Mage_Sales_Model_Order $order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($this->getOrderId());
         if ($order->getId()) {
             $status = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_AFTERPAYMENT);
+
             if ($order->getStatus() != $status) {
                 $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $status);
                 $order->save();
+            }
+
+            if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING)) {
+                $items = $this->_getProductsQty($order->getAllItems());
+                Mage::getSingleton('cataloginventory/stock')->registerProductsSale($items);
             }
         }
     }
@@ -228,5 +235,44 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
     public function canRefund()
     {
         return ($this->getState() === self::STATE_PROCESSED && ($this->getAmount() !== $this->getAmountRefunded()));
+    }
+
+    protected function _getProductsQty($relatedItems)
+    {
+        $items = array();
+        foreach ($relatedItems as $item) {
+            $productId  = $item->getProductId();
+            if (!$productId) {
+                continue;
+            }
+            $children = $item->getChildrenItems();
+            if ($children) {
+                foreach ($children as $childItem) {
+                    $this->_addItemToQtyArray($childItem, $items);
+                }
+            } else {
+                $this->_addItemToQtyArray($item, $items);
+            }
+        }
+        return $items;
+    }
+
+    protected function _addItemToQtyArray($quoteItem, &$items)
+    {
+        $productId = $quoteItem->getProductId();
+        if (!$productId)
+            return;
+        if (isset($items[$productId])) {
+            $items[$productId]['qty'] += $quoteItem->getTotalQty();
+        } else {
+            $stockItem = null;
+            if ($quoteItem->getProduct()) {
+                $stockItem = $quoteItem->getProduct()->getStockItem();
+            }
+            $items[$productId] = array(
+                'item' => $stockItem,
+                'qty'  => $quoteItem->getTotalQty()
+            );
+        }
     }
 }

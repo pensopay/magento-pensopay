@@ -98,6 +98,14 @@
                     </pensopay_payment>
                 </observers>
             </sales_order_place_after>
+            <checkout_type_onepage_save_order>
+                <observers>
+                    <pensopay_payment>
+                        <class>pensopay/observer</class>
+                        <method>checkoutTypeOnepageSaveOrder</method>
+                    </pensopay_payment>
+                </observers>
+            </checkout_type_onepage_save_order>
         </events>
     </frontend>
     <adminhtml>

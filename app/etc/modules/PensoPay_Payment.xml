@@ -4,6 +4,9 @@
         <PensoPay_Payment>
             <active>true</active>
             <codePool>community</codePool>
+            <depends>
+                <Mage_CatalogInventory/>
+            </depends>
         </PensoPay_Payment>
     </modules>
 </config>

@@ -17,6 +17,19 @@ class PensoPay_Payment_Model_Observer
         }
     }
 
+    /**
+     * Disable stock subtraction if configured to do so
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function checkoutTypeOnepageSaveOrder(Varien_Event_Observer $observer)
+    {
+        if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING)) {
+            $quote = $observer->getEvent()->getQuote();
+            $quote->setInventoryProcessed(true);
+        }
+    }
+
     public function saveOrder($observer)
     {
         $session = Mage::getSingleton('adminhtml/session');
