@@ -163,6 +163,7 @@
                 <instructions>Pay with your credit card via PensoPay</instructions>
                 <order_status>pending</order_status>
                 <order_status_after_payment>processing</order_status_after_payment>
+                <subtract_stock_on_processing>0</subtract_stock_on_processing>
             </pensopay>
             <pensopay_viabill>
                 <active>0</active>
