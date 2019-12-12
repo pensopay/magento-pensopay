@@ -70,7 +70,7 @@ class PensoPay_Payment_Model_Api
                     'qty'        => (int) $item->getQtyOrdered(),
                     'item_no'    => $item->getSku(),
                     'item_name'  => $item->getName(),
-                    'item_price' => (int) ($item->getBasePriceInclTax() * 100),
+                    'item_price' => (int) (($item->getRowTotalInclTax() - $item->getDiscountAmount()) * 100),
                     'vat_rate'   => $item->getTaxPercent() / 100,
                 );
 
