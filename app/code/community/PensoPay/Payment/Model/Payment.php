@@ -191,11 +191,6 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
                 $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $status);
                 $order->save();
             }
-
-            if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING)) {
-                $items = $this->_getProductsQty($order->getAllItems());
-                Mage::getSingleton('cataloginventory/stock')->registerProductsSale($items);
-            }
         }
     }
 

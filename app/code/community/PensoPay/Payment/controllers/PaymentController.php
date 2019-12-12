@@ -158,10 +158,26 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 
                     return $this;
                 }
+
+                if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING)) {
+                    $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+                    $items = $this->_getProductsQty($quote->getAllItems());
+                    $itemsForReindex = Mage::getSingleton('cataloginventory/stock')->registerProductsSale($items);
+
+                    $productIds = array();
+
+                    foreach ($itemsForReindex as $item) {
+                        $item->save();
+                        $productIds[] = $item->getProductId();
+                    }
+
+                    Mage::getResourceSingleton('catalog/product_indexer_price')->reindexProductIds($productIds);
+                }
             }
 
             $paymentModel->importFromRemotePayment($request);
             $paymentModel->save();
+
         }
 //        $payment = $order->getPayment();
 //        $txnId = $transactionResponse->transaction->id;
@@ -310,5 +326,44 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
     private function getPrivateKey()
     {
         return Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_PRIVATE_KEY);
+    }
+
+    protected function _getProductsQty($relatedItems)
+    {
+        $items = array();
+        foreach ($relatedItems as $item) {
+            $productId  = $item->getProductId();
+            if (!$productId) {
+                continue;
+            }
+            $children = $item->getChildrenItems();
+            if ($children) {
+                foreach ($children as $childItem) {
+                    $this->_addItemToQtyArray($childItem, $items);
+                }
+            } else {
+                $this->_addItemToQtyArray($item, $items);
+            }
+        }
+        return $items;
+    }
+
+    protected function _addItemToQtyArray($quoteItem, &$items)
+    {
+        $productId = $quoteItem->getProductId();
+        if (!$productId)
+            return;
+        if (isset($items[$productId])) {
+            $items[$productId]['qty'] += $quoteItem->getTotalQty();
+        } else {
+            $stockItem = null;
+            if ($quoteItem->getProduct()) {
+                $stockItem = $quoteItem->getProduct()->getStockItem();
+            }
+            $items[$productId] = array(
+                'item' => $stockItem,
+                'qty'  => $quoteItem->getTotalQty()
+            );
+        }
     }
 }
