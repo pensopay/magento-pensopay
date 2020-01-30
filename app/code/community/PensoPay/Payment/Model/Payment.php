@@ -184,9 +184,11 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
 
         /** @var Mage_Sales_Model_Order $order */
         $order = Mage::getModel('sales/order')->loadByIncrementId($this->getOrderId());
-        if ($order->getId()) {
+        if ($order->getId() && in_array($this->getLastType(), [
+                self::OPERATION_AUTHORIZE,
+                self::OPERATION_CAPTURE
+            ], true) && $this->getLastCode() == self::STATUS_APPROVED) {
             $status = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_AFTERPAYMENT);
-
             if ($order->getStatus() != $status) {
                 $order->setState(Mage_Sales_Model_Order::STATE_PROCESSING, $status);
                 $order->save();

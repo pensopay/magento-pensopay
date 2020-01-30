@@ -75,8 +75,8 @@ class PensoPay_Payment_Adminhtml_PensopayController extends Mage_Adminhtml_Contr
 
         $order->setCustomerEmail($postData['customer_email']);
         $order->setCustomerName($postData['customer_name']);
-        $order->setCustomerStreet($postData['customer_name']);
-        $order->setCustomerZipcode($postData['customer_name']);
+        $order->setCustomerStreet($postData['customer_street']);
+        $order->setCustomerZipcode($postData['customer_zipcode']);
 
         return $order;
     }
