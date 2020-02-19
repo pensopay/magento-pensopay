@@ -41,7 +41,7 @@ class PensoPay_Payment_Model_Api
                 $address['phone_number'] = $billingAddress->getTelephone();
                 $address['email'] = $billingAddress->getEmail();
 
-                $request->setBillingAddress($address);
+                $request->setInvoiceAddress($address);
             }
 
             //Add shipping_address
@@ -226,14 +226,12 @@ class PensoPay_Payment_Model_Api
             $request->setGoogleAnalyticsClientId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID));
         }
 
-        if (!$order->getNoRedirects()) {
-            if ($order->getIsVirtualTerminal()) {
-                $store = array_values(Mage::app()->getStores())[0]; //First non-admin store
-            } else {
-                $store = $order->getStore();
-            }
-            $request->setCallbackUrl($this->getCallbackUrl($store));
+        if ($order->getIsVirtualTerminal()) {
+            $store = array_values(Mage::app()->getStores())[0]; //First non-admin store
+        } else {
+            $store = $order->getStore();
         }
+        $request->setCallbackUrl($this->getCallbackUrl($store));
 
         $request->setCustomerEmail($order->getCustomerEmail() ?: '');
 

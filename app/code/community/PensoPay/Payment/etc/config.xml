@@ -190,6 +190,13 @@
                 <allowspecific>0</allowspecific>
                 <instructions>Pay with Klarna</instructions>
             </pensopay_klarna>
+            <pensopay_dankort>
+                <active>0</active>
+                <model>pensopay/method_dankort</model>
+                <title>PensoPay Dankort</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with Dankort</instructions>
+            </pensopay_dankort>
         </payment>
     </default>
 </config>

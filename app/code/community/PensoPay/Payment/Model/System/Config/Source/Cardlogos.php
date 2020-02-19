@@ -5,10 +5,11 @@ class PensoPay_Payment_Model_System_Config_Source_Cardlogos
     public function toOptionArray()
     {
         return array(
-            array(
-                'value' => 'dankort',
-                'label' => Mage::helper('pensopay')->__('Dankort')
-            ),
+//Dankort moved to its own gateway
+            //            array(
+//                'value' => 'dankort',
+//                'label' => Mage::helper('pensopay')->__('Dankort')
+//            ),
             array(
                 'value' => 'forbrugsforeningen',
                 'label' => Mage::helper('pensopay')->__('Forbrugsforeningen')
