@@ -24,4 +24,35 @@
         </reference>
         <remove name="header" />
     </pensopay_payment_iframe>
+    <pensopay_payment_embedded>
+        <reference name="root">
+            <reference name="root">
+                <action method="setTemplate"><template>page/1column.phtml</template></action>
+            </reference>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/pensopay/embedded.css</name>
+            </action>
+            <action method="addItem"><type>js_css</type><name>calendar/calendar-win2k-1.css</name><params/><!--<if/><condition>can_load_calendar_js</condition>--></action>
+
+        </reference>
+        <reference name="footer">
+            <block type="core/text" name="pensopay">
+                <action method="setText">
+                    <text><![CDATA[<script src="/skin/frontend/base/default/js/pensopay/pensopay.js"></script>]]></text>
+                </action>
+            </block>
+            <block type="core/text" name="overlay">
+                <action method="setText">
+                    <text><![CDATA[<script src="/skin/frontend/base/default/js/pensopay/overlay.min.js"></script>]]></text>
+                </action>
+            </block>
+        </reference>
+        <reference name="content">
+            <block type="core/template" template="pensopay/embedded.phtml" name="embedded.pensopay" />
+        </reference>
+        <remove name="header" />
+    </pensopay_payment_embedded>
 </layout>

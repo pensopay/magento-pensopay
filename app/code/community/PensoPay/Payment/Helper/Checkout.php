@@ -37,6 +37,15 @@ class PensoPay_Payment_Helper_Checkout extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function isCheckoutEmbedded()
+    {
+        $checkoutMethod = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_CHECKOUT_METHOD);
+        if ($checkoutMethod === PensoPay_Payment_Model_System_Config_Source_CheckoutMethods::METHOD_EMBEDDED) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Return checkout session
      *

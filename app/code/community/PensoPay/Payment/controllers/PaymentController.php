@@ -2,6 +2,12 @@
 
 class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Action
 {
+    public function embeddedAction()
+    {
+        $this->loadLayout();
+        $this->renderLayout();
+    }
+
     public function emailAction()
     {
         /** @var Mage_Core_Controller_Request_Http $request */
@@ -30,7 +36,6 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         return $this->_redirect('/');
     }
 
-
     /**
      * Redirect to gateway
      */
@@ -43,7 +48,9 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         $api = Mage::getModel('pensopay/api');
 
         $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
-        $isCheckoutIframe = $pensopayCheckoutHelper->isCheckoutIframe();
+//        $isCheckoutIframe = $pensopayCheckoutHelper->isCheckoutIframe();
+        $isCheckoutIframe = false; //deprecated for now
+        $isCheckoutEmbedded = $pensopayCheckoutHelper->isCheckoutEmbedded();
         try {
 
             $payment = $api->createPayment($order);
@@ -52,7 +59,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
              * Because this is an iframe, we need tell the api to generate a link that after payment is complete
              * it won't redirect the user (within the iframe) anywhere. our code will handle that.
              */
-            if ($isCheckoutIframe) {
+            if ($isCheckoutIframe || $isCheckoutEmbedded) {
                 $order->setNoRedirects(true);
             }
 
@@ -73,9 +80,18 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_redirect('checkout/cart');
         }
 
-        if ($isCheckoutIframe) {
-            $pensopayCheckoutHelper->getCoreSession()->setPaymentWindowUrl($paymentLink);
-            $this->_redirect('*/*/iframe');
+        if ($isCheckoutEmbedded) {
+            $paymentData = [
+                'payment_link' => $paymentLink,
+                'total' => $order->getGrandTotal(),
+                'currency' => $order->getOrderCurrencyCode(),
+                'redirecturl' => Mage::app()->getStore()->getUrl('pensopay/payment/success'),
+                'cancelurl' => Mage::app()->getStore()->getUrl('pensopay/payment/cancel')
+            ];
+
+            $pensopayCheckoutHelper->getCoreSession()->setPaymentData(serialize($paymentData));
+//            $this->_redirect('*/*/iframe');
+            $this->_redirect('*/*/embedded');
         } else {
             $this->_redirectUrl($paymentLink);
         }
