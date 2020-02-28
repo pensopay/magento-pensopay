@@ -51,6 +51,14 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 //        $isCheckoutIframe = $pensopayCheckoutHelper->isCheckoutIframe();
         $isCheckoutIframe = false; //deprecated for now
         $isCheckoutEmbedded = $pensopayCheckoutHelper->isCheckoutEmbedded();
+
+        if ($isCheckoutEmbedded) {
+            $paymentMethod = $order->getPayment()->getMethod();
+            if (in_array($paymentMethod, ['pensopay_dankort', 'pensopay_klarna', 'pensopay_mobilepay'], true)) { //These do not support embedded
+                $isCheckoutEmbedded = false;
+            }
+        }
+
         try {
 
             $payment = $api->createPayment($order);
