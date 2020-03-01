@@ -130,6 +130,40 @@ class PensoPay_Payment_Model_Observer
         return $this;
     }
 
+    /**
+     * Cancel all orders that are pending payment for >= 24h
+     * @return $this
+     */
+    public function pendingPaymentOrderCancel()
+    {
+        /** @var Mage_Sales_Model_Resource_Order_Collection $collection */
+        $collection = Mage::getResourceModel('sales/order_collection');
+        $collection->addFieldToFilter('state', 'pending_payment');
+        $collection->getSelect()->join(
+            array('payments' => $collection->getTable('sales/order_payment')),
+            'payments.parent_id = main_table.entity_id',
+            'method'
+        );
+        $collection->addFieldToFilter('method', array('like' => 'pensopay%'));
+        $collection->getSelect()->where('HOUR(TIMEDIFF(NOW(), created_at)) >= 24');
+        /** @var Mage_Sales_Model_Order $payment */
+        foreach ($collection as $order) {
+            try {
+                if ($order->canCancel()) {
+                    $order->cancel()->save();
+                    Mage::log('CRON: Canceled old order #' . $order->getIncrementId(), LOG_WARNING,
+                        PensoPay_Payment_Helper_Data::LOG_FILENAME);
+                } else {
+                    throw new Exception('Order is in a non-cancellable state.');
+                }
+            } catch (Exception $e) {
+                Mage::log('CRON: Could not cancel old order #' . $order->getIncrementId() . ' Exception: ' . $e->getMessage(),
+                    LOG_WARNING, PensoPay_Payment_Helper_Data::LOG_FILENAME);
+            }
+        }
+        return $this;
+    }
+
     public function checkoutSubmitAllAfter(Varien_Event_Observer $observer)
     {
         /** @var Mage_Sales_Model_Order $order */

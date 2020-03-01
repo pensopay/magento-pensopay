@@ -15,6 +15,14 @@
                     <model>pensopay/observer::updateVirtualterminalPaymentStatus</model>
                 </run>
             </update_virtualterminal_payment_status>
+            <pensopay_pending_payment_order_cancel>
+                <schedule>
+                    <cron_expr>0 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>pensopay/observer::pendingPaymentOrderCancel</model>
+                </run>
+            </pensopay_pending_payment_order_cancel>
         </jobs>
     </crontab>
     <global>
