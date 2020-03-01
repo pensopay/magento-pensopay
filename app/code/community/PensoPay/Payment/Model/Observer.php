@@ -18,6 +18,27 @@ class PensoPay_Payment_Model_Observer
     }
 
     /**
+     * Add fraud probability to order grid
+     *
+     * @param  Varien_Event_Observer $observer
+     * @return $this
+     */
+    public function onBlockHtmlBefore(Varien_Event_Observer $observer)
+    {
+        $block = $observer->getEvent()->getBlock();
+
+        if (! isset($block)) return;
+
+        if ($block->getType() === 'adminhtml/sales_order_grid') {
+            $massAction = $block->getMassactionBlock();
+            $massAction->addItem('pensopay_mass_capture', array(
+                'label' => 'Capture with PensoPay',
+                'url' => $block->getUrl('adminhtml/pensopay/orderMassCapture')
+            ));
+        }
+    }
+
+    /**
      * Disable stock subtraction if configured to do so
      *
      * @param Varien_Event_Observer $observer

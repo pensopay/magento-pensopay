@@ -133,6 +133,14 @@
                     </pensopay_payment>
                 </observers>
             </checkout_submit_all_after>
+            <adminhtml_block_html_before>
+                <observers>
+                    <pensopay_payment_mass>
+                        <class>pensopay/observer</class>
+                        <method>onBlockHtmlBefore</method>
+                    </pensopay_payment_mass>
+                </observers>
+            </adminhtml_block_html_before>
         </events>
     </adminhtml>
     <admin>
