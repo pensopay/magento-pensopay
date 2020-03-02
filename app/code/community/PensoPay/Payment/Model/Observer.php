@@ -130,6 +130,26 @@ class PensoPay_Payment_Model_Observer
         return $this;
     }
 
+    public function cancelOrderAfter(Varien_Event_Observer $observer)
+    {
+        /** @var Mage_Sales_Model_Order $order */
+        $order = $observer->getEvent()->getOrder();
+
+        if ($order instanceof Mage_Sales_Model_Order && $order->getId()) {
+            /** @var PensoPay_Payment_Model_Payment $paymentModel */
+            $paymentModel = Mage::getModel('pensopay/payment')->load($order->getIncrementId(), 'order_id');
+
+            if ($paymentModel->getId() && !$paymentModel->getIsVirtualterminal()) {
+                $paymentModel->updatePaymentRemote(); //make sure we have the latest status
+                if ($paymentModel->canCancel()) {
+                    try {
+                        $paymentModel->cancel();
+                    } catch (Exception $e) {}
+                }
+            }
+        }
+    }
+
     /**
      * Cancel all orders that are pending payment for >= 24h
      * @return $this

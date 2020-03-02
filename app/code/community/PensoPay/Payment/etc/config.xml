@@ -70,6 +70,17 @@
                 </pensopay_virtualterminal_link>
             </email>
         </template>
+        <events>
+            <order_cancel_after>
+                <observers>
+                    <pensopay_payment_cancel>
+                        <type>singleton</type>
+                        <class>pensopay/observer</class>
+                        <method>cancelOrderAfter</method>
+                    </pensopay_payment_cancel>
+                </observers>
+            </order_cancel_after>
+        </events>
     </global>
     <frontend>
         <routers>

@@ -77,6 +77,13 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         return sprintf('%s (%s)', $status, $this->getState());
     }
 
+    public function cancel()
+    {
+        $api = Mage::getModel('pensopay/api');
+        $this->importFromRemotePayment($api->cancel($this->getReferenceId()));
+        return $this;
+    }
+
     public function getMetadata()
     {
         if (!empty($this->getData('metadata'))) {
