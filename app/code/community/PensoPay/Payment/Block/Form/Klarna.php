@@ -27,6 +27,6 @@ class PensoPay_Payment_Block_Form_Klarna extends Mage_Payment_Block_Form
      */
     public function getMethodLabelAfterHtml()
     {
-        return sprintf('<img src="%s" height="20" alt="%s"/>', $this->getSkinUrl("images/pensopaypayment/klarna.png"), 'Klarna');
+        return sprintf('<img src="%s" height="%s" alt="%s"/>', $this->getSkinUrl('images/pensopaypayment/klarna.png'), Mage::getStoreConfig('payment/pensopay/cardlogos_size'), 'Klarna');
     }
 }

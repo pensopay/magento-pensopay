@@ -53,6 +53,10 @@ class PensoPay_Payment_Model_System_Config_Source_Cardlogos
             array(
                 'value' => 'mobilepay',
                 'label' => Mage::helper('pensopay')->__('MobilePay')
+            ),
+            array(
+                'value' => 'applepay',
+                'label' => Mage::helper('pensopay')->__('ApplePay')
             )
         );
     }

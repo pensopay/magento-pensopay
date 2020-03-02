@@ -156,6 +156,11 @@ class PensoPay_Payment_Model_Observer
      */
     public function pendingPaymentOrderCancel()
     {
+        //Disabled from admin
+        if (!Mage::getStoreConfigFlag('payment/pensopay/pending_payment_order_cancel')) {
+            return $this;
+        }
+
         /** @var Mage_Sales_Model_Resource_Order_Collection $collection */
         $collection = Mage::getResourceModel('sales/order_collection');
         $collection->addFieldToFilter('state', 'pending_payment');

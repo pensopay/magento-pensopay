@@ -2,7 +2,7 @@
 <config>
     <modules>
         <PensoPay_Payment>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
         </PensoPay_Payment>
     </modules>
     <crontab>
@@ -187,8 +187,10 @@
                 <auto_capture>0</auto_capture>
                 <auto_fee>0</auto_fee>
                 <cardlogos>dankort,visa,mastercard,maestro</cardlogos>
+                <cardlogos_size>20</cardlogos_size>
                 <instructions>Pay with your credit card via PensoPay</instructions>
                 <order_status>pending</order_status>
+                <pending_payment_order_cancel>0</pending_payment_order_cancel>
                 <order_status_after_payment>processing</order_status_after_payment>
                 <subtract_stock_on_processing>0</subtract_stock_on_processing>
             </pensopay>
