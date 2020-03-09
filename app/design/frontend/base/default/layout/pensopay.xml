@@ -36,19 +36,6 @@
                 <name>css/pensopay/embedded.css</name>
             </action>
             <action method="addItem"><type>js_css</type><name>calendar/calendar-win2k-1.css</name><params/><!--<if/><condition>can_load_calendar_js</condition>--></action>
-
-        </reference>
-        <reference name="footer">
-            <block type="core/text" name="pensopay">
-                <action method="setText">
-                    <text><![CDATA[<script src="/skin/frontend/base/default/js/pensopay/pensopay.js"></script>]]></text>
-                </action>
-            </block>
-            <block type="core/text" name="overlay">
-                <action method="setText">
-                    <text><![CDATA[<script src="/skin/frontend/base/default/js/pensopay/overlay.min.js"></script>]]></text>
-                </action>
-            </block>
         </reference>
         <reference name="content">
             <block type="core/template" template="pensopay/embedded.phtml" name="embedded.pensopay" />
