@@ -58,7 +58,7 @@ class PensoPay_Payment_Model_Observer
         try {
             $order = $observer->getEvent()->getOrder();
             $payment = $order->getPayment()->getMethodInstance();
-            if ($payment instanceof PensoPay_Payment_Model_Payment) {
+            if ($payment instanceof PensoPay_Payment_Model_Payment || $payment instanceof PensoPay_Payment_Model_Method) {
                 $order->setStatus(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_BEFOREPAYMENT));
             }
 
