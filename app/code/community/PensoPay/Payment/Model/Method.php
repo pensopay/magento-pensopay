@@ -213,8 +213,8 @@ class PensoPay_Payment_Model_Method extends Mage_Payment_Model_Method_Abstract
      */
     public function getPaymentMethods()
     {
-        if ($this->getConfigData('payment_method') === 'specified') {
-            return $this->getConfigData('payment_method_specified');
+        if ($this->getConfigData('payment_methods') === 'specified') {
+            return $this->getConfigData('payment_methods_specified');
         }
 
         return $this->getConfigData('payment_method');
