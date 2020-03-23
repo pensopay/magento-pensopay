@@ -102,6 +102,9 @@ class PensoPay_Payment_Model_Method extends Mage_Payment_Model_Method_Abstract
         }
 
         try {
+            /** @var PensoPay_Payment_Helper_Data $helper */
+            $helper = Mage::helper('pensopay');
+            $helper->setTransactionStoreId($order->getStoreId());
             $paymentInfo = $this->_api->capture($payment->getReferenceId(), $amount);
             $payment->importFromRemotePayment($paymentInfo);
 
@@ -147,6 +150,9 @@ class PensoPay_Payment_Model_Method extends Mage_Payment_Model_Method_Abstract
             throw new Exception($this->_helper->__('Trying to refund more than captured.'));
         }
         try {
+            /** @var PensoPay_Payment_Helper_Data $helper */
+            $helper = Mage::helper('pensopay');
+            $helper->setTransactionStoreId($order->getStoreId());
             $paymentInfo = $this->_api->refund($payment->getReferenceId(), $amount);
             $payment->importFromRemotePayment($paymentInfo);
 

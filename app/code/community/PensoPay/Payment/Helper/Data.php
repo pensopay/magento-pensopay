@@ -7,6 +7,8 @@ class PensoPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_VIABILL_ENABLED = 'payment/pensopay_viabill/active';
     const XML_PATH_VIABILL_SHOPID = 'payment/pensopay_viabill/shop_id';
 
+    const REGISTRY_STORE_KEY = 'penso_store_id';
+
     public function isViabillEnabled()
     {
         return Mage::getStoreConfigFlag(self::XML_PATH_VIABILL_ENABLED);
@@ -91,5 +93,27 @@ class PensoPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
         if (!$emailTemplate->send($email, $name, $vars)) {
             throw new Exception('Could not send email.');
         }
+    }
+
+    /**
+     * Sets the registry for the store id - used to make sure we get the right credentials for api use
+     * @param $storeId
+     * @return PensoPay_Payment_Helper_Data
+     * @throws Mage_Core_Exception
+     */
+    public function setTransactionStoreId($storeId)
+    {
+        Mage::unregister(self::REGISTRY_STORE_KEY);
+        Mage::register(self::REGISTRY_STORE_KEY, $storeId);
+        return $this;
+    }
+
+    /**
+     * Returns 0 if not set
+     * @return int
+     */
+    public function getTransactionStoreId()
+    {
+        return Mage::registry(self::REGISTRY_STORE_KEY) ?: 0;
     }
 }

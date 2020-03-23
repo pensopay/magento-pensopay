@@ -11,6 +11,10 @@ class PensoPay_Payment_Model_Api
         $request->setOrderId($order->getIncrementId());
         $request->setCurrency($order->getOrderCurrencyCode());
 
+        /** @var PensoPay_Payment_Helper_Data $helper */
+        $helper = Mage::helper('pensopay');
+        $helper->setTransactionStoreId($order->getStore()->getId());
+
         if ($textOnStatement = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_TEXT_ON_STATEMENT)) {
             $request->setTextOnStatement($textOnStatement);
         }
@@ -231,6 +235,10 @@ class PensoPay_Payment_Model_Api
         } else {
             $store = $order->getStore();
         }
+        /** @var PensoPay_Payment_Helper_Data $helper */
+        $helper = Mage::helper('pensopay');
+        $helper->setTransactionStoreId($store->getId());
+
         $request->setCallbackUrl($this->getCallbackUrl($store));
 
         $request->setCustomerEmail($order->getCustomerEmail() ?: '');
@@ -313,12 +321,12 @@ class PensoPay_Payment_Model_Api
     {
         $client = new Zend_Http_Client();
 
-        $url = $this->baseurl . "/" . $resource;
+        $url = $this->baseurl . '/' . $resource;
 
         $client->setUri($url);
 
         $headers = [
-            'Authorization'  => 'Basic ' . base64_encode(":" . $this->getApiKey()),
+            'Authorization'  => 'Basic ' . base64_encode(':' . $this->getApiKey()),
             'Accept-Version' => 'v10',
             'Accept'         => 'application/json',
             'Content-Type'   => 'application/json',
@@ -346,7 +354,10 @@ class PensoPay_Payment_Model_Api
      */
     private function getApiKey()
     {
-        return Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_API_KEY);
+        /** @var PensoPay_Payment_Helper_Data $helper */
+        $helper = Mage::helper('pensopay');
+        $storeId = $helper->getTransactionStoreId();
+        return Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_API_KEY, $storeId);
     }
 
     /**
