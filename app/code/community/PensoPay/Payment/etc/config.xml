@@ -191,6 +191,8 @@
                 <instructions>Pay with your credit card via PensoPay</instructions>
                 <order_status>pending</order_status>
                 <pending_payment_order_cancel>0</pending_payment_order_cancel>
+                <sendmailorderconfirmation>1</sendmailorderconfirmation>
+                <sendmailorderconfirmationbefore>0</sendmailorderconfirmationbefore>
                 <order_status_after_payment>processing</order_status_after_payment>
                 <subtract_stock_on_processing>0</subtract_stock_on_processing>
             </pensopay>

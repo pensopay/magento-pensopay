@@ -129,14 +129,21 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             if ($order->canInvoice()) {
                 $invoice = $order->prepareInvoice();
                 $invoice->register();
-                $invoice->setEmailSent(true);
-                $invoice->getOrder()->setCustomerNoteNotify(true);
-                $invoice->sendEmail(true, '');
+                if ($paymentMethod->getConfigData('sendmailorderconfirmation')) {
+                    $invoice->setEmailSent(true);
+                    $invoice->getOrder()->setCustomerNoteNotify(true);
+                    $invoice->sendEmail(true, '');
+                }
                 Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
 
                 $order->addStatusToHistory(Mage_Sales_Model_Order::STATE_COMPLETE);
                 $order->save();
+                $this->_redirect('checkout/onepage/success');
             }
+        }
+
+        if ((int)$paymentMethod->getConfigData('sendmailorderconfirmationbefore') == 1) {
+            $order->sendNewOrderEmail();
         }
 
         $this->_redirect('checkout/onepage/success');
@@ -202,6 +209,17 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $paymentModel->importFromRemotePayment($request);
             $paymentModel->save();
 
+            if ($paymentModel->getLastType() === PensoPay_Payment_Model_Payment::OPERATION_AUTHORIZE
+                && $paymentModel->getLastCode() === PensoPay_Payment_Model_Payment::STATUS_APPROVED
+                && !$paymentModel->getIsVirtualterminal()) {
+                try {
+                    if ((int)$order->getPayment()->getMethodInstance()->getConfigData('sendmailorderconfirmationbefore') == 1) {
+                        $order->sendNewOrderEmail();
+                    }
+                } catch (Exception $e) {
+
+                }
+            }
         }
 //        $payment = $order->getPayment();
 //        $txnId = $transactionResponse->transaction->id;
