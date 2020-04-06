@@ -28,6 +28,11 @@ class PensoPay_Payment_Helper_Checkout extends Mage_Core_Helper_Abstract
         return false;
     }
 
+    public function getPaymentConfig($value)
+    {
+        return Mage::getStoreConfig('payment/pensopay/' . $value, Mage::app()->getStore());
+    }
+
     public function isCheckoutIframe()
     {
         $checkoutMethod = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_CHECKOUT_METHOD);

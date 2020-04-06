@@ -115,9 +115,6 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 
         $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
 
-        /** @var PensoPay_Payment_Model_Method $paymentMethod */
-        $paymentMethod = Mage::getModel('pensopay/method');
-
         $quoteID = Mage::getSingleton('checkout/cart')->getQuote()->getId();
 
         if ($quoteID) {
@@ -125,11 +122,11 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $quote->setIsActive(false)->save();
         }
 
-        if ((int)$paymentMethod->getConfigData('auto_capture') == 1) {
+        if ((int)$pensopayCheckoutHelper->getPaymentConfig('auto_capture') == 1) {
             if ($order->canInvoice()) {
                 $invoice = $order->prepareInvoice();
                 $invoice->register();
-                if ($paymentMethod->getConfigData('sendmailorderconfirmation')) {
+                if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation')) {
                     $invoice->setEmailSent(true);
                     $invoice->getOrder()->setCustomerNoteNotify(true);
                     $invoice->sendEmail(true, '');
@@ -142,7 +139,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             }
         }
 
-        if ((int)$paymentMethod->getConfigData('sendmailorderconfirmationbefore') == 1) {
+        if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
             $order->sendNewOrderEmail();
         }
 
@@ -160,6 +157,9 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         $request = json_decode($requestBody);
 
         $checksum = hash_hmac("sha256", $requestBody, $this->getPrivateKey());
+
+        /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
+        $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
 
         if ($checksum === $this->getRequest()->getServer('HTTP_QUICKPAY_CHECKSUM_SHA256')) {
             $operation = end($request->operations);
@@ -213,7 +213,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 && $paymentModel->getLastCode() === PensoPay_Payment_Model_Payment::STATUS_APPROVED
                 && !$paymentModel->getIsVirtualterminal()) {
                 try {
-                    if ((int)$order->getPayment()->getMethodInstance()->getConfigData('sendmailorderconfirmationbefore') == 1) {
+                    if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
                         $order->sendNewOrderEmail();
                     }
                 } catch (Exception $e) {
