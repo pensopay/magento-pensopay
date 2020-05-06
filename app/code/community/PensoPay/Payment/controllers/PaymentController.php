@@ -110,12 +110,28 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
      */
     public function successAction()
     {
+        /** @var Mage_Checkout_Model_Session $checkoutSession */
+        $checkoutSession = Mage::getSingleton('checkout/session');
+
         /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
         $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
 
-        $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
+        if (!$checkoutSession->getLastSuccessQuoteId()) {
+            $orderHash = $this->getRequest()->getParam('ori');
+            if (empty($orderHash)) {
+                return $this->_redirect('checkout/onepage/success');
+            }
+            $orderId = base64_decode($orderHash);
+            $order = Mage::getModel('sales/order')->load($orderId);
+            $checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+            $checkoutSession->setLastQuoteId($order->getQuoteId());
+            $checkoutSession->setLastRealOrderId($order->getId());
+            $checkoutSession->setLastOrderId($order->getId());
+        } else {
+            $order = $pensopayCheckoutHelper->getCheckoutSession()->getLastRealOrder();
+        }
 
-        $quoteID = Mage::getSingleton('checkout/cart')->getQuote()->getId();
+        $quoteID = $checkoutSession->getQuote()->getId();
 
         if ($quoteID) {
             $quote = Mage::getModel('sales/quote')->load($quoteID);

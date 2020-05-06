@@ -201,7 +201,7 @@ class PensoPay_Payment_Model_Api
         if (!$order->getIsVirtualTerminal()) {
             $request->setAmount($order->getTotalDue() * 100);
             if (!$order->getNoRedirects()) {
-                $request->setContinueurl($this->getContinueUrl($order->getStore()));
+                $request->setContinueurl($this->getContinueUrl($order->getStore(), $order->getId()));
                 $request->setCancelurl($this->getCancelUrl($order->getStore()));
             } else {
                 $request->setCancelurl($this->getCancelIframeUrl($order->getStore())); //Even if iframe, we need this to poll payment status
@@ -388,9 +388,9 @@ class PensoPay_Payment_Model_Api
      * @param Mage_Core_Model_Store $store
      * @return string
      */
-    private function getContinueUrl($store)
+    private function getContinueUrl($store, $orderId = '')
     {
-        return $store->getUrl('pensopay/payment/success');
+        return $store->getUrl('pensopay/payment/success', ['_query' => ['ori' => base64_encode($orderId)]]);
     }
 
     private function getCancelIframeUrl($store)
