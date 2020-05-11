@@ -150,7 +150,7 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
      */
     public function importFromRemotePayment($payment)
     {
-        if (!Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_TESTMODE_ENABLED) && $payment->test_mode) {
+        if (!Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_TESTMODE_ENABLED, $this->getStore()) && $payment->test_mode) {
             $this->setState(self::STATE_REJECTED);
             return;
         }
@@ -221,7 +221,7 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
         /** @var PensoPay_Payment_Model_Api $api */
         $api = Mage::getModel('pensopay/api');
 
-        $paymentInfo = $api->getPayment($this->getReferenceId());
+        $paymentInfo = $api->getPayment($this->getReferenceId(), $this->getStore());
         $this->importFromRemotePayment($paymentInfo);
         $this->save();
     }

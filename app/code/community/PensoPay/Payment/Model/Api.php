@@ -7,6 +7,11 @@ class PensoPay_Payment_Model_Api
      */
     protected $baseurl = "https://api.quickpay.net";
 
+    /**
+     * @param $request
+     * @param Mage_Sales_Model_Order $order
+     * @throws Mage_Core_Exception
+     */
     protected function _setupRequest(&$request, $order) {
         $request->setOrderId($order->getIncrementId());
         $request->setCurrency($order->getOrderCurrencyCode());
@@ -15,7 +20,7 @@ class PensoPay_Payment_Model_Api
         $helper = Mage::helper('pensopay');
         $helper->setTransactionStoreId($order->getStore()->getId());
 
-        if ($textOnStatement = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_TEXT_ON_STATEMENT)) {
+        if ($textOnStatement = Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_TEXT_ON_STATEMENT, $order->getStore())) {
             $request->setTextOnStatement($textOnStatement);
         }
 
@@ -196,7 +201,13 @@ class PensoPay_Payment_Model_Api
         Mage::log($paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
         $request = new Varien_Object();
-        $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
+        $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID, $order->getStore()));
+
+        if ($order->getIsVirtualTerminal()) {
+            $store = array_values(Mage::app()->getStores())[0]; //First non-admin store
+        } else {
+            $store = $order->getStore();
+        }
 
         if (!$order->getIsVirtualTerminal()) {
             $request->setAmount($order->getTotalDue() * 100);
@@ -207,8 +218,8 @@ class PensoPay_Payment_Model_Api
                 $request->setCancelurl($this->getCancelIframeUrl($order->getStore())); //Even if iframe, we need this to poll payment status
             }
             $request->setLanguage($this->getLanguageFromLocale(Mage::app()->getLocale()->getLocaleCode()));
-            $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE));
-            $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE));
+            $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE, $store));
+            $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE, $store));
             $request->setPaymentMethods($order->getPayment()->getMethodInstance()->getPaymentMethods());
         } else { //Virtual Terminal order
             $request->setAmount($order->getGrandTotal() * 100);
@@ -218,23 +229,19 @@ class PensoPay_Payment_Model_Api
             $request->setPaymentMethods(Mage::getModel('pensopay/method')->getPaymentMethods());
         }
 
-        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING)) {
-            $request->setBrandingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING));
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING, $store)) {
+            $request->setBrandingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_BRANDING, $store));
         }
 
-        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING)) {
-            $request->setGoogleAnalyticsTrackingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING));
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING, $store)) {
+            $request->setGoogleAnalyticsTrackingId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_TRACKING, $store));
         }
 
-        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID)) {
-            $request->setGoogleAnalyticsClientId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID));
+        if (Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID, $store)) {
+            $request->setGoogleAnalyticsClientId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ANALYTICS_CLIENT_ID, $store));
         }
 
-        if ($order->getIsVirtualTerminal()) {
-            $store = array_values(Mage::app()->getStores())[0]; //First non-admin store
-        } else {
-            $store = $order->getStore();
-        }
+
         /** @var PensoPay_Payment_Helper_Data $helper */
         $helper = Mage::helper('pensopay');
         $helper->setTransactionStoreId($store->getId());
@@ -293,12 +300,12 @@ class PensoPay_Payment_Model_Api
         return json_decode($payment);
     }
 
-    public function getPayment($paymentId)
+    public function getPayment($paymentId, $store = null)
     {
         Mage::log('Updating payment state for ' . $paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
         $request = new Varien_Object();
-        $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID));
+        $request->setAgreementId(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AGREEMENT_ID, $store));
 
         $endpoint = sprintf('payments/%s', $paymentId);
         $payment = $this->request($endpoint, $request->toArray(), Zend_Http_Client::GET);

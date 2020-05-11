@@ -44,6 +44,9 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
         /** @var PensoPay_Payment_Helper_Checkout $pensopayCheckoutHelper */
         $pensopayCheckoutHelper = Mage::helper('pensopay/checkout');
 
+        /** @var PensoPay_Payment_Helper_Data $pensoPayHelper */
+        $pensoPayHelper = Mage::helper('pensopay');
+
         /** @var PensoPay_Payment_Model_Api $api */
         $api = Mage::getModel('pensopay/api');
 
@@ -75,7 +78,8 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
 
             /** @var PensoPay_Payment_Model_Payment $newPayment */
             $newPayment = Mage::getModel('pensopay/payment');
-
+            $newPayment->setStore($order->getStore());
+            $pensoPayHelper->setTransactionStoreId($order->getStoreId());
             $newPayment->importFromRemotePayment($payment);
             $newPayment->setLink($paymentLink);
             $newPayment->setIsVirtualterminal(false);
@@ -280,7 +284,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                     ));
                     return;
                 }
-
+                $payment->setStore(Mage::app()->getStore());
                 $payment->updatePaymentRemote();
 
                 if (in_array($payment->getLastType(), [

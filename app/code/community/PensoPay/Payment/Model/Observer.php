@@ -45,8 +45,9 @@ class PensoPay_Payment_Model_Observer
      */
     public function checkoutTypeOnepageSaveOrder(Varien_Event_Observer $observer)
     {
-        if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING)) {
-            $quote = $observer->getEvent()->getQuote();
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $observer->getEvent()->getQuote();
+        if (Mage::getStoreConfigFlag(PensoPay_Payment_Model_Config::XML_PATH_SUBTRACT_STOCK_ON_PROCESSING, $quote->getStore())) {
             $quote->setInventoryProcessed(true);
         }
     }
@@ -56,10 +57,11 @@ class PensoPay_Payment_Model_Observer
         $session = Mage::getSingleton('adminhtml/session');
 
         try {
+            /** @var Mage_Sales_Model_Order $order */
             $order = $observer->getEvent()->getOrder();
             $payment = $order->getPayment()->getMethodInstance();
             if ($payment instanceof PensoPay_Payment_Model_Payment || $payment instanceof PensoPay_Payment_Model_Method) {
-                $order->setStatus(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_BEFOREPAYMENT));
+                $order->setStatus(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_ORDER_STATUS_BEFOREPAYMENT, $order->getStore()));
             }
 
         } catch (Exception $e) {
@@ -140,6 +142,10 @@ class PensoPay_Payment_Model_Observer
             $paymentModel = Mage::getModel('pensopay/payment')->load($order->getIncrementId(), 'order_id');
 
             if ($paymentModel->getId() && !$paymentModel->getIsVirtualterminal()) {
+                $paymentModel->setStore($order->getStore());
+                /** @var PensoPay_Payment_Helper_Data $helper */
+                $helper = Mage::helper('pensopay');
+                $helper->setTransactionStoreId($order->getStoreId());
                 $paymentModel->updatePaymentRemote(); //make sure we have the latest status
                 if ($paymentModel->canCancel()) {
                     try {
@@ -206,7 +212,8 @@ class PensoPay_Payment_Model_Observer
 
             /** @var PensoPay_Payment_Model_Payment $newPayment */
             $newPayment = Mage::getModel('pensopay/payment');
-
+            $helper->setTransactionStoreId($order->getStoreId());
+            $newPayment->setStore($order->getStore());
             $newPayment->importFromRemotePayment($payment);
             $newPayment->setLink($paymentLink);
             $newPayment->setIsVirtualterminal(false);
