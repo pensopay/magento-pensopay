@@ -24,6 +24,7 @@ class PensoPay_Payment_Model_Payment extends Mage_Core_Model_Abstract {
     const OPERATION_AUTHORIZE = 'authorize';
     const OPERATION_CANCEL = 'cancel';
     const OPERATION_REFUND = 'refund';
+    const OPERATION_MOBILEPAY_SESSION = 'session';
 
     const FRAUD_PROBABILITY_HIGH = 'high';
     const FRAUD_PROBABILITY_NONE = 'none';
