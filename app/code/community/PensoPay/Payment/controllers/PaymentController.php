@@ -243,6 +243,14 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 && $paymentModel->getLastCode() === PensoPay_Payment_Model_Payment::STATUS_APPROVED
                 && !$paymentModel->getIsVirtualterminal()) {
                 try {
+                    if($request->facilitator == 'mobilepay'){
+                        $order = $this->updateOrderByCallback($order, $request);
+
+                        $order->addStatusHistoryComment(Mage::helper('pensopay')->__('Order was created from MobilePay Checkout'))
+                            ->setIsCustomerNotified(false)
+                            ->save();
+                    }
+
                     if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation') == 1) {
                         $order->sendNewOrderEmail();
                     }
@@ -437,5 +445,101 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 'qty'  => $quoteItem->getTotalQty()
             );
         }
+    }
+
+    /**
+     * @param $order
+     * @param $data
+     */
+    public function updateOrderByCallback($order, $data){
+        Mage::log("start update mobilepay order", null, 'pp_callback.log');
+
+        $shippingAddress = $data->shipping_address;
+        $billingAddress = $data->invoice_address;
+
+        if($shippingAddress && !$billingAddress){
+            $billingAddress = $shippingAddress;
+        }
+
+        if(!$shippingAddress && $billingAddress){
+            $shippingAddress = $billingAddress;
+        }
+
+        if(!$shippingAddress && !$billingAddress){
+            return;
+        }
+
+        if(!$order->getCustomerId()){
+            $order->setCustomerEmail($billingAddress->email);
+        }
+
+        $billingName = $this->splitCustomerName($billingAddress->name);
+        $billingStreet = [$billingAddress->street, $billingAddress->house_number];
+        if($order->getBillingAddress()) {
+            $countryCode = Mage::helper('pensopay')->convertCountryAlphas3To2($billingAddress->country_code);
+            $order->getBillingAddress()->addData(
+                [
+                    'firstname' => $billingName['firstname'],
+                    'lastname' => $billingName['lastname'],
+                    'street' => implode(' ', $billingStreet),
+                    'city' => $billingAddress->city ? $billingAddress->city : '-',
+                    'country_id' => $countryCode,
+                    'region' => $billingAddress->region,
+                    'postcode' => $billingAddress->zip_code ? $billingAddress->zip_code : '-',
+                    'telephone' => $billingAddress->phone_number ? $billingAddress->phone_number : '-',
+                    'vat_id' => $billingAddress->vat_no,
+                    'save_in_address_book' => 0
+                ]
+            );
+        }
+
+        $shippingName = $this->splitCustomerName($shippingAddress->name);
+        $shippingStreet = [$shippingAddress->street, $shippingAddress->house_number];
+
+        if($order->getShippingAddress()) {
+            $countryCode = Mage::helper('pensopay')->convertCountryAlphas3To2($shippingAddress->country_code);
+            $order->getShippingAddress()->addData([
+                'firstname' => $shippingName['firstname'],
+                'lastname' => $shippingName['lastname'],
+                'street' => implode(' ', $shippingStreet),
+                'city' => $shippingAddress->city ? $shippingAddress->city : '-',
+                'country_id' => $countryCode,
+                'region' => $shippingAddress->region,
+                'postcode' => $shippingAddress->zip_code ? $shippingAddress->zip_code : '-',
+                'telephone' => $shippingAddress->phone_number ? $shippingAddress->phone_number : '-',
+                'vat_id' => $shippingAddress->vat_no,
+                'save_in_address_book' => 0
+            ]);
+        }
+
+        try {
+            $order->save();
+        } catch (\Exception $e) {
+            Mage::log($e->getMessage(), null, 'pp_callback.log');
+        }
+
+        return $order;
+    }
+
+    /**
+     * @param $name
+     * @return array
+     */
+    public function splitCustomerName($name)
+    {
+        $name = trim($name);
+        if (strpos($name, ' ') === false) {
+            // you can return the firstname with no last name
+            return array('firstname' => $name, 'lastname' => '');
+
+            // or you could also throw an exception
+            throw Exception('Invalid name specified.');
+        }
+
+        $parts     = explode(" ", $name);
+        $lastname  = array_pop($parts);
+        $firstname = implode(" ", $parts);
+
+        return array('firstname' => $firstname, 'lastname' => $lastname);
     }
 }
