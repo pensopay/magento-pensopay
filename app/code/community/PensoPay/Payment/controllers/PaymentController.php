@@ -92,6 +92,10 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_redirect('checkout/cart');
         }
 
+        if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
+            $order->sendNewOrderEmail();
+        }
+
         if ($isCheckoutEmbedded) {
             $paymentData = [
                 'payment_link' => $paymentLink,
@@ -146,20 +150,26 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             if ($order->canInvoice()) {
                 $invoice = $order->prepareInvoice();
                 $invoice->register();
-                if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation')) {
-                    $invoice->setEmailSent(true);
-                    $invoice->getOrder()->setCustomerNoteNotify(true);
-                    $invoice->sendEmail(true, '');
-                }
-                Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
 
+                $invoice->setEmailSent(true);
+                $invoice->getOrder()->setCustomerNoteNotify(true);
+                $invoice->sendEmail(true, '');
+
+                Mage::getModel('core/resource_transaction')->addObject($invoice)->addObject($invoice->getOrder())->save();
+                $order->setStatus('complete');
+                $order->setState('complete');
                 $order->addStatusToHistory(Mage_Sales_Model_Order::STATE_COMPLETE);
                 $order->save();
                 $this->_redirect('checkout/onepage/success');
             }
+        } else { //just auth'd
+            $nStatus = $pensopayCheckoutHelper->getPaymentConfig('order_status_after_payment');
+            $order->setState($nStatus, true);
+            $order->addStatusToHistory($nStatus);
+            $order->save();
         }
 
-        if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
+        if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation')) {
             $order->sendNewOrderEmail();
         }
 
@@ -233,7 +243,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 && $paymentModel->getLastCode() === PensoPay_Payment_Model_Payment::STATUS_APPROVED
                 && !$paymentModel->getIsVirtualterminal()) {
                 try {
-                    if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
+                    if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation') == 1) {
                         $order->sendNewOrderEmail();
                     }
                 } catch (Exception $e) {

@@ -228,6 +228,27 @@
                 <allowspecific>0</allowspecific>
                 <instructions>Pay with Dankort</instructions>
             </pensopay_dankort>
+            <pensopay_klarnapayments>
+                <active>0</active>
+                <model>pensopay/method_klarnapayments</model>
+                <title>PensoPay Klarna Payments</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with KlarnaPayments</instructions>
+            </pensopay_klarnapayments>
+            <pensopay_vipps>
+                <active>0</active>
+                <model>pensopay/method_vipps</model>
+                <title>PensoPay Vipps</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with Vipps</instructions>
+            </pensopay_vipps>
+            <pensopay_paypal>
+                <active>0</active>
+                <model>pensopay/method_paypal</model>
+                <title>PensoPay PayPal</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with PayPal</instructions>
+            </pensopay_paypal>
         </payment>
     </default>
 </config>

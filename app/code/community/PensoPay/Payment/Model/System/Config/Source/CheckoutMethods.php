@@ -17,10 +17,10 @@ class PensoPay_Payment_Model_System_Config_Source_CheckoutMethods
                 'value' => self::METHOD_REDIRECT,
                 'label' => Mage::helper('pensopay')->__('Redirect')
             ],
-            [
-                'value' => self::METHOD_EMBEDDED,
-                'label' => Mage::helper('pensopay')->__('Embedded')
-            ],
+//            [
+//                'value' => self::METHOD_EMBEDDED,
+//                'label' => Mage::helper('pensopay')->__('Embedded')
+//            ],
 //            [
 //                'value' => self::METHOD_IFRAME,
 //                'label' => Mage::helper('pensopay')->__('Iframe')
