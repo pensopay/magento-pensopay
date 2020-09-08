@@ -239,8 +239,8 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $paymentModel->importFromRemotePayment($request);
             $paymentModel->save();
 
-            if ($paymentModel->getLastType() === PensoPay_Payment_Model_Payment::OPERATION_AUTHORIZE
-                && $paymentModel->getLastCode() === PensoPay_Payment_Model_Payment::STATUS_APPROVED
+            if (($paymentModel->getLastType() === PensoPay_Payment_Model_Payment::OPERATION_AUTHORIZE || $paymentModel->getLastType() === PensoPay_Payment_Model_Payment::OPERATION_MOBILEPAY_SESSION)
+                && $paymentModel->getLastCode() == PensoPay_Payment_Model_Payment::STATUS_APPROVED
                 && !$paymentModel->getIsVirtualterminal()) {
                 try {
                     if($request->facilitator == 'mobilepay'){

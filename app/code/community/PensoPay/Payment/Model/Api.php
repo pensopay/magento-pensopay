@@ -32,6 +32,11 @@ class PensoPay_Payment_Model_Api
             $billingAddress = $order->getBillingAddress();
             $shippingAddress = $order->getShippingAddress();
 
+            if ($order->getPayment()->getMethodInstance()->getPaymentMethods() === 'mobilepay') {
+                $billingAddress = null;
+                $shippingAddress = null;
+            }
+
             if ($order->getIsVirtual()) {
                 //Re-use billing address as shipping address
                 $shippingAddress = $billingAddress;
@@ -88,8 +93,23 @@ class PensoPay_Payment_Model_Api
 
             //Set shipping information
             $shipping = [];
+
             $shipping['method'] = 'pick_up_point';
-            $shipping['amount'] = (int) ($order->getShippingInclTax() * 100);
+            if ($order->getCustomShippingCode()) {
+                $shipping['method'] = $order->getCustomShippingCode();
+            }
+
+            if ($order->getPayment()->getMethodInstance()->getPaymentMethods() === 'klarna-payments') {
+                $basket[] = array(
+                    'qty'        => 1,
+                    'item_no'    => 'shipping',
+                    'item_name'  => 'Shipping',
+                    'item_price' => (int)($order->getShippingInclTax() * 100),
+                    'vat_rate'   => $order->getShippingTaxAmount() / $order->getShippingInclTax(),
+                );
+            } else {
+                $shipping['amount'] = (int)($order->getShippingInclTax() * 100);
+            }
 
             $request->setShipping($shipping);
         } else { //Order is from virtual terminal
@@ -221,6 +241,13 @@ class PensoPay_Payment_Model_Api
             $request->setAutocapture(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_CAPTURE, $store));
             $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE, $store));
             $request->setPaymentMethods($order->getPayment()->getMethodInstance()->getPaymentMethods());
+
+            if ($request->getPaymentMethods() === 'mobilepay') {
+                $request->setData('invoice_address_selection', true);
+                $request->setData('shipping_address_selection', true);
+            }
+
+
         } else { //Virtual Terminal order
             $request->setAmount($order->getGrandTotal() * 100);
             $request->setLanguage($this->getLanguageFromLocale($order->getLocaleCode()));

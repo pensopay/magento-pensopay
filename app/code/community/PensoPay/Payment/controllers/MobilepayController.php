@@ -89,6 +89,8 @@ class PensoPay_Payment_MobilepayController extends Mage_Core_Controller_Front_Ac
                     ->setLastOrderId($order->getId());
             }
 
+            $order->setCustomShippingCode($params['shipping']);
+
             //Save quote id in session for retrieval later
             $session->setPensoPayQuoteId($session->getQuoteId());
 
