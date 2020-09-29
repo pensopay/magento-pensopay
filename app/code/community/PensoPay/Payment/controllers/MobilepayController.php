@@ -1,20 +1,20 @@
 <?php
 class PensoPay_Payment_MobilepayController extends Mage_Core_Controller_Front_Action
 {
-    public function redirectAction(){
+    public function redirectAction() {
         $params = $this->getRequest()->getParams();
         $error = false;
 
-        if(empty($params['shipping'])){
+        if (empty($params['shipping'])) {
             $error = Mage::helper('pensopay')->__('Please specify a shipping method.');
         } else {
             $shippingData = Mage::getModel('pensopay/carrier_shipping')->getMethodByCode($params['shipping']);
-            if(empty($shippingData)){
+            if (empty($shippingData)) {
                 $error = Mage::helper('pensopay')->__('Please specify a shipping method.');
             }
         }
 
-        if($error) {
+        if ($error) {
             Mage::getSingleton('core/session')->addError($error);
             $this->_redirectReferer();
             return;
@@ -32,13 +32,14 @@ class PensoPay_Payment_MobilepayController extends Mage_Core_Controller_Front_Ac
         $pensoPayHelper = Mage::helper('pensopay');
 
         try {
-            if(!$quote->getCustomerId() && !$quote->getCustomerEmail()){
-                $quote->setCustomerEmail('dnk@dnk.dk');
+            if (!$quote->getCustomerId() && !$quote->getCustomerEmail()) {
+                $quote->setCustomerEmail(Mage::getStoreConfig('trans_email/ident_general/email'));
                 $quote->setCustomerIsGuest(1);
             }
 
             $defaultValue = 'DNK';
             $defaultCountry = Mage::getStoreConfig('general/country/default', Mage::app()->getStore()->getStoreId());
+
             $defaultAddress = [
                 'firstname' => $defaultValue,
                 'lastname' => $defaultValue,
@@ -104,7 +105,7 @@ class PensoPay_Payment_MobilepayController extends Mage_Core_Controller_Front_Ac
             $api = Mage::getModel('pensopay/api');
 
             $payment = $api->createPayment($order);
-            $paymentLink = $api->createPaymentLink($order, $payment->id);
+            $paymentLink = $api->createPaymentLink($order, $payment->id, true);
 
             /** @var PensoPay_Payment_Model_Payment $newPayment */
             $newPayment = Mage::getModel('pensopay/payment');

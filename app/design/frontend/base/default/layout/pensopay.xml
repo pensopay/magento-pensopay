@@ -74,13 +74,13 @@
 
     <checkout_onepage_index>
         <reference name="head">
-            <action method="addCss" ifconfig="payment/pensopay_mobilepay/active">
+            <action method="addCss" ifconfig="payment/pensopay_mobilepay_checkout/active">
                 <stylesheet>css/pensopay/magnific-popup.css</stylesheet>
             </action>
-            <action method="addCss" ifconfig="payment/pensopay_mobilepay/active">
+            <action method="addCss" ifconfig="payment/pensopay_mobilepay_checkout/active">
                 <stylesheet>css/pensopay/styles.css</stylesheet>
             </action>
-            <action method="addItem" ifconfig="payment/pensopay_mobilepay/active"><type>skin_js</type><name>js/pensopay/jquery.magnific-popup.min.js</name></action>
+            <action method="addItem" ifconfig="payment/pensopay_mobilepay_checkout/active"><type>skin_js</type><name>js/pensopay/jquery.magnific-popup.min.js</name></action>
         </reference>
         <reference name="content">
             <block type="pensopay/checkout_mobilepay" name="pensopay.mobilepay" template="pensopay/checkout/mobilepay.phtml" before="checkout.onepage" ifconfig="payment/pensopay_mobilepay/active">

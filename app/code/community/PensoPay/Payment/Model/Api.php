@@ -216,7 +216,7 @@ class PensoPay_Payment_Model_Api
      * @throws Mage_Core_Exception
      * @throws Zend_Http_Client_Exception
      */
-    public function createPaymentLink(Mage_Sales_Model_Order $order, $paymentId)
+    public function createPaymentLink(Mage_Sales_Model_Order $order, $paymentId, $address = false)
     {
         Mage::log($paymentId, null, PensoPay_Payment_Helper_Data::LOG_FILENAME);
 
@@ -242,7 +242,7 @@ class PensoPay_Payment_Model_Api
             $request->setAutofee(Mage::getStoreConfig(PensoPay_Payment_Model_Config::XML_PATH_AUTO_FEE, $store));
             $request->setPaymentMethods($order->getPayment()->getMethodInstance()->getPaymentMethods());
 
-            if ($request->getPaymentMethods() === 'mobilepay') {
+            if ($address) {
                 $request->setData('invoice_address_selection', true);
                 $request->setData('shipping_address_selection', true);
             }

@@ -7,7 +7,8 @@ class PensoPay_Payment_Block_Mpo_Link extends Mage_Core_Block_Template
      */
     public function isMobilePayCheckoutEnabled()
     {
-        return Mage::getStoreConfigFlag('payment/pensopay_mobilepay/checkout_enabled');
+    	return false;
+        return Mage::getStoreConfigFlag('payment/pensopay_mobilepay_checkout/active');
     }
 
     /**
@@ -16,6 +17,6 @@ class PensoPay_Payment_Block_Mpo_Link extends Mage_Core_Block_Template
      */
     public function getCheckoutUrl()
     {
-        return $this->getUrl('checkout/mobilepay', array('_secure'=>true));
+        return $this->getUrl('payment/checkout/mobilepay', array('_secure'=>true));
     }
 }
