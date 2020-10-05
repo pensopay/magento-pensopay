@@ -243,7 +243,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                 && $paymentModel->getLastCode() == PensoPay_Payment_Model_Payment::STATUS_APPROVED
                 && !$paymentModel->getIsVirtualterminal()) {
                 try {
-                    if($request->facilitator == 'mobilepay'){
+                    if($request->facilitator == 'mobilepay' && isset($request->variables->mobilepay_address)){
                         $order = $this->updateOrderByCallback($order, $request);
 
                         $order->addStatusHistoryComment(Mage::helper('pensopay')->__('Order was created from MobilePay Checkout'))
