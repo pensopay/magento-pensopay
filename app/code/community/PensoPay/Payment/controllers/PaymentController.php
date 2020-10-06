@@ -164,9 +164,12 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             }
         } else { //just auth'd
             $nStatus = $pensopayCheckoutHelper->getPaymentConfig('order_status_after_payment');
-            $order->setState($nStatus, true);
-            $order->addStatusToHistory($nStatus);
-            $order->save();
+
+            if ($order->getStatus() !== $nStatus) {
+	            $order->setState( $nStatus, true );
+	            $order->addStatusToHistory( $nStatus );
+	            $order->save();
+            }
         }
 
         if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation')) {
