@@ -2,7 +2,7 @@
 <config>
     <modules>
         <PensoPay_Payment>
-            <version>1.1.10</version>
+            <version>1.1.11</version>
         </PensoPay_Payment>
     </modules>
     <crontab>
