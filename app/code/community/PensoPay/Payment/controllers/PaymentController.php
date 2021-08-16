@@ -92,7 +92,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             $this->_redirect('checkout/cart');
         }
 
-        if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1) {
+        if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmationbefore') == 1 && !$order->getEmailSent()) {
             $order->sendNewOrderEmail();
         }
 
@@ -172,7 +172,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             }
         }
 
-        if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation')) {
+        if ($pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation') && !$order->getEmailSent()) {
             $order->sendNewOrderEmail();
         }
 
@@ -254,7 +254,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
                             ->save();
                     }
 
-                    if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation') == 1) {
+                    if ((int)$pensopayCheckoutHelper->getPaymentConfig('sendmailorderconfirmation') == 1 && !$order->getEmailSent()) {
                         $order->sendNewOrderEmail();
                     }
                 } catch (Exception $e) {
