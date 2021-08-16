@@ -1,6 +1,6 @@
 <?php
 
-class PensoPay_Payment_Block_Form_Paypal extends Mage_Payment_Block_Form
+class PensoPay_Payment_Block_Form_Anyday extends Mage_Payment_Block_Form
 {
     /**
      * Instructions text
@@ -27,6 +27,6 @@ class PensoPay_Payment_Block_Form_Paypal extends Mage_Payment_Block_Form
      */
     public function getMethodLabelAfterHtml()
     {
-        return sprintf('<img src="%s" height="%s" alt="%s"/>', $this->getSkinUrl('images/pensopaypayment/paypal.png'), Mage::getStoreConfig('payment/pensopay/cardlogos_size'), 'Paypal');
+        return sprintf('<img src="%s" height="%s" alt="%s"/>', $this->getSkinUrl('images/pensopaypayment/anyday.png'), Mage::getStoreConfig('payment/pensopay/cardlogos_size'), 'Anyday');
     }
 }

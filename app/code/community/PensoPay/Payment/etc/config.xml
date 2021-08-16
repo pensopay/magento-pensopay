@@ -260,6 +260,13 @@
                 <allowspecific>0</allowspecific>
                 <instructions>Pay with PayPal</instructions>
             </pensopay_paypal>
+            <pensopay_anyday>
+                <active>0</active>
+                <model>pensopay/method_anyday</model>
+                <title>PensoPay Anyday</title>
+                <allowspecific>0</allowspecific>
+                <instructions>Pay with Anyday</instructions>
+            </pensopay_anyday>
         </payment>
         <carriers>
             <pensopay_mobilepay>
