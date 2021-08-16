@@ -79,12 +79,13 @@ class PensoPay_Payment_Model_Api
             //order is arbitrary
 
             //Add order items to basket array
+            /** @var Mage_Sales_Model_Order_Item $item */
             foreach ($order->getAllVisibleItems() as $item) {
                 $product = array(
                     'qty'        => (int) $item->getQtyOrdered(),
                     'item_no'    => $item->getSku(),
                     'item_name'  => $item->getName(),
-                    'item_price' => (int) (($item->getBasePriceInclTax() - $item->getDiscountAmount()) * 100),
+                    'item_price' => (int) (($item->getPriceInclTax() - $item->getDiscountAmount()) * 100),
                     'vat_rate'   => $item->getTaxPercent() / 100,
                 );
 
