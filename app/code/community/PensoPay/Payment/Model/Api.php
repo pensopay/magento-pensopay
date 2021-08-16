@@ -99,17 +99,7 @@ class PensoPay_Payment_Model_Api
                 $shipping['method'] = $order->getCustomShippingCode();
             }
 
-            if ($order->getPayment()->getMethodInstance()->getPaymentMethods() === 'klarna-payments') {
-                $basket[] = array(
-                    'qty'        => 1,
-                    'item_no'    => 'shipping',
-                    'item_name'  => 'Shipping',
-                    'item_price' => (int)($order->getShippingInclTax() * 100),
-                    'vat_rate'   => $order->getShippingTaxAmount() / $order->getShippingInclTax(),
-                );
-            } else {
-                $shipping['amount'] = (int)($order->getShippingInclTax() * 100);
-            }
+            $shipping['amount'] = (int)($order->getShippingInclTax() * 100);
 
             $request->setShipping($shipping);
         } else { //Order is from virtual terminal
