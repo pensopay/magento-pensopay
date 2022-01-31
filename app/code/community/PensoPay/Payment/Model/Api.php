@@ -415,7 +415,7 @@ class PensoPay_Payment_Model_Api
      */
     private function getContinueUrl($store, $orderId = '')
     {
-        return $store->getUrl('pensopay/payment/success', ['_query' => ['ori' => base64_encode($orderId)]]);
+        return $store->getUrl('pensopay/payment/success', ['_query' => ['ori' => Mage::getModel('core/encryption')->encrypt($orderId)]]);
     }
 
     private function getCancelIframeUrl($store)

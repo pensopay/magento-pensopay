@@ -129,7 +129,7 @@ class PensoPay_Payment_PaymentController extends Mage_Core_Controller_Front_Acti
             if (empty($orderHash)) {
                 return $this->_redirect('checkout/onepage/success');
             }
-            $orderId = base64_decode($orderHash);
+            $orderId = Mage::getModel('core/encryption')->decrypt($orderHash);
             $order = Mage::getModel('sales/order')->load($orderId);
             $checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
             $checkoutSession->setLastQuoteId($order->getQuoteId());
